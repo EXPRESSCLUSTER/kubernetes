@@ -7,7 +7,7 @@
     +--------------------------+
  +--| Master Node              |
  |  | - CentOS 7.6.1810        |
- |  | - kubernetes v1.13       |
+ |  | - kubernetes v1.13.1     |
  |  | - Docker 1.13.1-88       |
  |  | - EXPRESSCLUSTER X  4.0  |
  |  +--------------------------+
@@ -15,7 +15,7 @@
  |  +--------------------------+
  +--| Worker Node #1           |
  |  | - CentOS 7.6.1810        |
- |  | - kubernetes v1.13       |
+ |  | - kubernetes v1.13.1     |
  |  | - Docker 1.13.1-88       |
  |  | - EXPRESSCLUSTER X  4.0  |
  |  +--------------------------+
@@ -23,7 +23,7 @@
  |  +--------------------------+
  +--| Worker Node #2           |
     | - CentOS 7.6.1810        |
-    | - kubernetes v1.13       |
+    | - kubernetes v1.13.1     |
     | - Docker 1.13.1-88       |
     | - EXPRESSCLUSTER X  4.0  |
     +--------------------------+
