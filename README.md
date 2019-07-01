@@ -1,2 +1,5 @@
 # kubernetes
-This repository contains some articles describe how to create kubernetes cluster with EXPRESSCLUSTER.
+- The purpose of thie project to open knowledge for kubernetes and EXPRESSCLUSTER.
+
+## How to Deploy EXPRESSCLUSTER SingleServerSafe
+- Please refer to . 
