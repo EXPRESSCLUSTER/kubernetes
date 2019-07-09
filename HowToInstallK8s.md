@@ -111,7 +111,7 @@
    # kubeadm init --apiserver-advertise-address=192.168.1.151 --pod-network-cidr=10.244.0.0/16  --token-ttl 0
    ```
    - --apiserver-advertise-address: IP address of master node
-   - --pod-network-cidr: It depends on FIXME. In this case, we use flannel.
+   - --pod-network-cidr: It depends on Container Networking Interface (e.g. Flannnel, Calico, Canal and so on). In this case, we use Flannel.
    - --token-ttl: **0** means **never expire**.
 1. After initialization, take a note the following command. It is required to add a worker node to the cluster.
    ```bash
