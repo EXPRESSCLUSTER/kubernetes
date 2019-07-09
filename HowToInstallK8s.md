@@ -61,7 +61,7 @@
   (Comment out the following line)
   #/dev/mapper/centos-swap swap      swap defaults      0 0
   ```
-- Run the following commands or run [the sample script](#https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/script/01_setup4k8s.sh) to disable SELinux, firewalld, IPv6 and enable IPv4 forwarding.
+- Run the following commands or run [the sample script](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/script/01_setup4k8s.sh) to disable SELinux, firewalld, IPv6 and enable IPv4 forwarding.
   ```bash
   # setenforce 0
   # sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
