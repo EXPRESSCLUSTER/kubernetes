@@ -1,6 +1,11 @@
 # How to Install kubernetes
 ## Index
 - [Evaluation Configuration](#Evaluation-Configuration)
+- [Prerequisite](#Prerequisite)
+- [Install Docker](#Install-Docker)
+- [Install kubernetes](#Install-kubernetes)
+- [Setup Master Node](#Setup-Master-Node)
+- [Add Worker Node to the Cluster](#Add-Worker-Node-to-the-Cluster)
 
 ## Evaluation Configuration
 ```
@@ -56,7 +61,7 @@
   (Comment out the following line)
   #/dev/mapper/centos-swap swap      swap defaults      0 0
   ```
-- Run the following commands or run the sample script to disable SELinux, firewalld, IPv6 and enable IPv4 forwarding.
+- Run the following commands or run [the sample script](#https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/script/01_setup4k8s.sh) to disable SELinux, firewalld, IPv6 and enable IPv4 forwarding.
   ```bash
   # setenforce 0
   # sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
@@ -77,7 +82,7 @@
 - Please refer to [How to Install Docker](https://github.com/EXPRESSCLUSTER/Docker/blob/master/HowToInstallDocker.md)
 
 ## Install kubernetes
-1. Run the following command or sample script to prepare to install kubernetes.
+1. Run the following command or [the sample script](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/script/02_setup4k8s.sh) to prepare to install kubernetes.
    ```bash
    # cat <<EOF >  /etc/sysctl.d/k8s.conf
    net.bridge.bridge-nf-call-ip6tables = 1
