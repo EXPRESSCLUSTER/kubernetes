@@ -3,7 +3,7 @@
 - [Evaluation Configuration](#Evaluation-Configuration)
 - [Prerequisite](#Prerequisite)
 - [Install Docker](#Install-Docker)
-- [Install kubernetes](#Install-kubernetes)
+- [Install kubernetes on CentOS](#Install-kubernetes-on-CentOS)
 - [Setup Master Node](#Setup-Master-Node)
 - [Add Worker Node to the Cluster](#Add-Worker-Node-to-the-Cluster)
 
@@ -81,7 +81,7 @@
 ## Install Docker
 - Please refer to [How to Install Docker](https://github.com/EXPRESSCLUSTER/Docker/blob/master/HowToInstallDocker.md)
 
-## Install kubernetes
+## Install kubernetes on CentOS
 1. Run the following command or [the sample script](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/script/02_setup4k8s.sh) to prepare to install kubernetes.
    ```bash
    # cat <<EOF >  /etc/sysctl.d/k8s.conf
