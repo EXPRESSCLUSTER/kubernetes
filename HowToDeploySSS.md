@@ -1,5 +1,6 @@
 # How to Deploy EXPRESSCLUSTER X SingleServerSafe
 
+
 ## Evaluation Configuration
 ```
     +--------------------------+
@@ -24,12 +25,11 @@
     +--------------------------+
 ```
 ## Prerequisite
-- Pull CentOS image from Docker Hub.
-  ```bash
-  # docker pull centos
-  ```
-## Load Container Image
-1. Create a container images.
-1. 
+
 
 ## MariaDB
+### Deploy MariaDB and EXPRESSCLUSTER X SingleServerSafe on the Same Container
+1. Load the container contains MariaDB and EXPRESSCLUSTER X SingleServerSafe on worker nodes. Regarding the container image, please refer to [Install SingleServerSafe on MariaDB Container](https://github.com/EXPRESSCLUSTER/Docker/blob/master/HowToInstallSSS.md#install-singleserversafe-on-mariadb-container).
+
+### Deploy MariaDB and EXPRESSCLUSTER X SingleServerSafe on the Same Pod
+1. 
