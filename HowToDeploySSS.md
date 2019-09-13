@@ -222,7 +222,7 @@
    # ./clusterpro_trn start
    # ./clusterpro_webmgr start
    ```
-1. Start web browser and access http://<IP address of container host>:19003 to start Cluster WebUI.
+1. Start web browser and access http://(IP address of container host):19003 to start Cluster WebUI.
 1. Change **Config Mode** and change the following parameters of mysqlw.
 
    |Parameter      |Value|
@@ -323,4 +323,4 @@
    ```sh
    # mysql -u root -p -h <IP address of the container host> -P 30106
    ```
-1. Check if web browsr can access to the cluster with http://<IP address of the container host>:30103.
+1. Check if web browsr can access to the cluster with http://(IP address of the container host):30103.
