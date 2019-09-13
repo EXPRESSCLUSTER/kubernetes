@@ -146,7 +146,7 @@
          - name: MYSQL_ROOT_PASSWORD
            value: <password of root user>
          - name: MYSQL_DATABASE
-           value: testdb
+           value: watch 
        volumes:
        - name: pvc-mariadb01
          persistentVolumeClaim:
@@ -156,13 +156,13 @@
    ```sh
    # kubectl apply -f pod-mariadb.yml
    ```
-1. Run **ls -l** on PV directory and wait **testdb** directory to be created.
+1. Run **ls -l** on PV directory and wait **watch** directory to be created.
    ```sh
    # ls -l
     :
    drwx------. 2 polkitd ssh_keys     4096 Sep 12 13:51 mysql
    drwx------. 2 polkitd ssh_keys       20 Sep 12 13:50 performance_schema
-   drwx------. 2 polkitd ssh_keys       64 Sep 12 13:54 testdb
+   drwx------. 2 polkitd ssh_keys       64 Sep 12 13:54 watch
    ```
 1. Check if root user can access to MariaDB.
    ```sh
@@ -185,7 +185,7 @@
    | information_schema |
    | mysql              |
    | performance_schema |
-   | testdb             |
+   | watch              |
    +--------------------+
    4 rows in set (0.001 sec)
 
@@ -227,7 +227,7 @@
 
    |Parameter      |Value|
    |---------------|-----|
-   |Database Name  |testdb|
+   |Database Name  |watch|
    |Port           |3306|
    |User Name      |your user account|
    |Password       |your user password|
