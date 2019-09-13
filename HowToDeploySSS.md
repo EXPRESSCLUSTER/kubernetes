@@ -152,6 +152,10 @@
          persistentVolumeClaim:
            claimName: pvc-mariadb01
      ```
+1. Apply the yaml file.
+   ```sh
+   # kubectl apply -f pod-mariadb.yml
+   ```
 1. Run **ls -l** on PV directory and wait **testdb** directory to be created.
    ```sh
    # ls -l
@@ -220,12 +224,14 @@
    ```
 1. Start web browser and access http://<IP address of container host>:19003 to start Cluster WebUI.
 1. Change **Config Mode** and change the following parameters of mysqlw.
+
    |Parameter      |Value|
    |---------------|-----|
    |Database Name  |testdb|
    |Port           |3306|
    |User Name      |your user account|
    |Password       |your user password|
+
 1. Stop and remove the container.
    ```sh
    # docker stop sssoncentos4mariadb-work
