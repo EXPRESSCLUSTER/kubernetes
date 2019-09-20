@@ -1,5 +1,9 @@
 # How to Deploy EXPRESSCLUSTER X SingleServerSafe
+- This article shows how to deploy EXPRESSCLUSTER X SingleServerSafe using **sidecar pattern** to monitor some software. 
 
+## Index
+- [Evaluation Configuration](#evaluation-configuration)
+- [Monitoring MariaDB](#Monitoring-MariaDB)
 
 ## Evaluation Configuration
 ```
@@ -25,7 +29,7 @@
     +--------------------------+
 ```
 
-## MariaDB
+## Monitoring MariaDB (Pod)
 ### Create PV and PVC
 1. Create persistent volumes for MariaDB and SingleServerSafe.
    1. Create yaml files as below.
