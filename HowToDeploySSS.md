@@ -38,7 +38,7 @@
    NAME          DATA   AGE
    sss4mariadb   1      1m
    ```
-1. Download the [yaml file]() and edit the following parameters.
+1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb-sss.yaml) and edit the following parameters.
    ```yml
              env:
              - name: MYSQL_ROOT_PASSWORD
