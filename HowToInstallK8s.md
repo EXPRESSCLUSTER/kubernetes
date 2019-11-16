@@ -108,10 +108,10 @@
 ## Setup Master Node
 1. Initialize a cluster.
    ```bash
-   # kubeadm init --apiserver-advertise-address=192.168.1.151 --pod-network-cidr=10.244.0.0/16  --token-ttl 0
+   # kubeadm init --apiserver-advertise-address=192.168.1.225 --pod-network-cidr=192.168.0.0/16 --token-ttl 0
    ```
    - --apiserver-advertise-address: IP address of master node
-   - --pod-network-cidr: It depends on Container Networking Interface (e.g. Flannnel, Calico, Canal and so on). In this case, we use Flannel.
+   - --pod-network-cidr: It depends on Container Networking Interface (e.g. Calico, Flannnel, Canal and so on). In this case, we use Calico.
    - --token-ttl: **0** means **never expire**.
 1. After initialization, take a note the following command. It is required to add a worker node to the cluster.
    ```bash
@@ -139,34 +139,16 @@
    NAME         STATUS   ROLES    AGE   VERSION
    centos-151   NotReady master   10s   v1.15.0
    ```
+1. Download the yaml file of Calico.
+   ```bash
+   # curl https://docs.projectcalico.org/v3.10/manifests/calico.yaml -O
+   ```
 1. Setup network. 
    ```bash
-   kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+   # kubectl apply -f calico.yaml
    ```
-   - By default, the above command will be available but it failed in our lab. So, we did the following steps to setup network.
-     1. Download the YAML file for flannel.
-        ```bash
-         # wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml --no-check-certificate
-        ```
-     1. Get the container image of flannel (quay.io/coreos/flannel). In our case, create an instance of AWS and get the container image.
-        ```bash
-        # docker pull quay.io/coreos/flannel
-        # docker save quay.io/coreos/flannel > flannel.tar
-        ```
-     1. Copy the tar file and load the container image to master node.
-        ```bash
-        # docker laod < flannel.tar
-        ```
-     1. Apply the YAML file for flannel.
-        ```bash
-        # kubectl apply -f kube-flannel.yml
-        ```
 
 ## Add Worker Node to the Cluster
-1. Load flannel image.
-   ```bash
-   # docker laod < flannel.tar
-   ```
 1. If your environment has the proxy server, you need to save CRT file on the following directory.
    ```
    /etc/docker/certs.d/k8s.gcr.io/
