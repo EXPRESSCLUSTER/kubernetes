@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb-sss
+spec:
+  serviceName: mariadb
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stateful-mariadb
+  template:
+    metadata:
+      labels:
+        app: stateful-mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+          - name: pvc-volume
+            mountPath: /var/lib/mysql
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: cluster-0
+          - name: MYSQL_DATABASE
+            value: watch
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-volume
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi
+
