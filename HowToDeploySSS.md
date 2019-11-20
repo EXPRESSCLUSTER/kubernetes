@@ -5,6 +5,29 @@
 - [Evaluation Configuration](#evaluation-configuration)
 - [Monitoring MariaDB](#Monitoring-MariaDB)
 
+## Overview
+- SingleServerSafe container connects to the database using SQL.
+- If SingleServerSafe cannot receive response within timeout (default: 60 sec) from the database, SingleServerSafe teminate the database process.
+  ```
+   +--------------------------------+
+   | Pod                            |
+   | +----------------------------+ |
+   | | SingleServerSafe container | |
+   | +--|-------------------------+ |
+   |    | (Monitoring using SQL)    |
+   | +--V-------------------------+ |
+   | | Database container         | |
+   | +--------------------+-------+ |
+   +----------------------|---------+
+                          | (Mount persistent volume)
+   +----------------------|---------+
+   | Persistent Volume    |         |
+   | +--------------------+-------+ |
+   | | Database files             | |
+   | +----------------------------+ |
+   +--------------------------------+
+  ```
+
 ## Evaluation Configuration
 - Master Node (1 node)
 - Worker Node (3 nodes)
@@ -44,6 +67,8 @@
    ```
 ### Deploy MariaDB and SingleServerSafe
 1. Download [the config file for SingleServerSafe](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/sss4mariadb.conf) and edit the following parameters.
+   - interval
+   - timeout
    - database
    - username
    - password
@@ -51,6 +76,9 @@
        <monitor>
          <types name="mysqlw"/>
          <mysqlw name="mysqlw">
+           <polling>
+             <interval>10</interval>
+             <timeout>60</timeout>
            : 
            <parameters>
              <database>watch</database>
@@ -78,4 +106,44 @@
 1. Create StatefulSet.
    ```sh
    # kubectl create -f stateful-mariadb-sss.yml
+   ```
+1. Check if the Pods are running.
+   ```sh
+   # kubectl get pod
+   NAME                                     READY   STATUS    RESTARTS   AGE
+   mariadb-sss-0                            2/2     Running   0          6m19s
+   mariadb-sss-1                            2/2     Running   0          5m57s
+   ```
+1. Check if SingleServerSafe is running.
+   ```sh
+   # kubectl exec mariadb-sss-0 -c sss clpstat
+    ========================  CLUSTER STATUS  ===========================
+     Cluster : mariadb-sss-0
+     <server>
+      *mariadb-sss-0 ...: Online
+         lanhb1         : Normal           LAN Heartbeat
+     <group>
+       failover ........: Online
+         current        : mariadb-sss-0
+         exec           : Online
+     <monitor>
+       mysqlw           : Normal
+    =====================================================================
+   ```
+
+### Verify Functionality
+1. Run bash on MariaDB contaier.
+   ```sh
+   # kubectl exec -it mariadb-sss-0 -c mariadb bash
+   ```
+1. Send SIGSTOP signal to mysqld process.
+   ```sh
+   # kill -s SIGSTOP `pgrep mysqld`
+   ```
+1. SingleServerSafe detects timeout error and terminates mysqld process. Then, MariaDB container stops and kubernetes restart the MariaDB container.
+   ```sh
+   # kubectl get pod
+   NAME                                     READY   STATUS    RESTARTS   AGE
+   mariadb-sss-0                            2/2     Running   1          34m
+   mariadb-sss-1                            2/2     Running   0          34m
    ```
