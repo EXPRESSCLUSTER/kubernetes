@@ -28,7 +28,7 @@ spec:
           - name: MYSQL_DATABASE
             value: watch
         - name: sss
-          image: sss4mariadb:4.1.2-1
+          image: expresscluster/sss4mariadb:4.1.2-1
           command: ['/usr/local/bin/docker-entrypoint.sh']
           volumeMounts:
             - name: config
