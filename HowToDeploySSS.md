@@ -152,21 +152,21 @@
 
 ## Monitoring PostgreSQL
 1. Create a persistent volume for PostgreSQL. The following expamle uses StatefulSet.
-1. Download [the config file for PostgreSQL]() and edit the following parameters.
+1. Download [the config file for PostgreSQL](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/postgres-configmap.yaml) and edit the following parameters.
    ```yml
    data:
    POSTGRES_DB: watch
    POSTGRES_USER: postgres
    POSTGRESS_PASSWORD: password
    ```
-1. Apply the 
+1. Apply the config file.
    ```sh
    # kubectl apply -f postgres-configmap.yaml
    # kubectl get cm/postgres-confg
    NAME              DATA   AGE
    postgres-config   3      5s
    ```
-1. Download [the yaml file for PostgreSQL only](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-postgres.yaml) and apply it.
+1. Download [the yaml file for PostgreSQL only](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres.yaml) and apply it.
    ```sh
    # kubectl apply -f stateful-postgres.yaml
    ```
@@ -214,15 +214,7 @@
    NAME          DATA   AGE
    sss4mariadb   1      1m
    ```
-1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss.yaml) and edit the following parameters.
-   ```yml
-             env:
-             - name: MYSQL_ROOT_PASSWORD
-               value: password
-             - name: MYSQL_DATABASE
-               value: watch
-   ```   
-1. Create StatefulSet.
+1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss.yaml) and create StatefulSet.
    ```sh
    # kubectl create -f stateful-mariadb-sss.yml
    ```
@@ -230,12 +222,12 @@
    ```sh
    # kubectl get pod
    NAME                                     READY   STATUS    RESTARTS   AGE
-   mariadb-sss-0                            2/2     Running   0          6m19s
-   mariadb-sss-1                            2/2     Running   0          5m57s
+   postgres-sss-0                           2/2     Running   0          6m19s
+   postgres-sss-1                           2/2     Running   0          5m57s
    ```
 1. Check if SingleServerSafe is running.
    ```sh
-   # kubectl exec mariadb-sss-0 -c sss clpstat
+   # kubectl exec postgres-sss-0 -c sss clpstat
     ========================  CLUSTER STATUS  ===========================
      Cluster : mariadb-sss-0
      <server>
