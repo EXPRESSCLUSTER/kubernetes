@@ -229,32 +229,32 @@
    ```sh
    # kubectl exec postgres-sss-0 -c sss clpstat
     ========================  CLUSTER STATUS  ===========================
-     Cluster : mariadb-sss-0
+     Cluster : sss
      <server>
-      *mariadb-sss-0 ...: Online
+      *postgres-sss-0 ..: Online
          lanhb1         : Normal           LAN Heartbeat
      <group>
        failover ........: Online
-         current        : mariadb-sss-0
+         current        : postgres-sss-0
          exec           : Online
      <monitor>
-       mysqlw           : Normal
+       psqlw            : Normal
     =====================================================================
    ```
 
 ### Verify Functionality
-1. Run bash on MariaDB contaier.
+1. Run bash on PostgreSQL contaier.
    ```sh
-   # kubectl exec -it mariadb-sss-0 -c mariadb bash
+   # kubectl exec -it postgres-sss-0 -c postgres bash
    ```
-1. Send SIGSTOP signal to mysqld process.
+1. Send SIGSTOP signal to postgres process.
    ```sh
-   # kill -s SIGSTOP `pgrep mysqld`
+   # kill -s SIGSTOP `pgrep postgres`
    ```
-1. SingleServerSafe detects timeout error and terminates mysqld process. Then, MariaDB container stops and kubernetes restart the MariaDB container.
+1. SingleServerSafe detects timeout error and terminates postgres process. Then, PostgreSQL container stops and kubernetes restart the PostgreSQL container.
    ```sh
    # kubectl get pod
-   NAME                                     READY   STATUS    RESTARTS   AGE
-   mariadb-sss-0                            2/2     Running   1          34m
-   mariadb-sss-1                            2/2     Running   0          34m
+   NAME             READY   STATUS    RESTARTS   AGE
+   postgres-sss-0   2/2     Running   1          5m14s
+   postgres-sss-1   2/2     Running   0          5m7s
    ```
