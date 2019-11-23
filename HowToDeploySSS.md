@@ -193,30 +193,30 @@
    - password
      ```xml
        <monitor>
-         <types name="mysqlw"/>
-         <mysqlw name="mysqlw">
+         <types name="psqlw"/>
+         <mysqlw name="psqlw">
            <polling>
              <interval>10</interval>
              <timeout>60</timeout>
            : 
            <parameters>
              <database>watch</database>
-             <username>root</username>
+             <username>postgres</username>
              <password>password</password>
      ```
 1. Create ConfigMap.
    ```sh
-   # kubectl create cm sss4mariadb --from-file=sss4postgres.conf
+   # kubectl create cm sss4postgres --from-file=sss4postgres.conf
    ```
 1. Check if the config map is created.
    ```sh
    # kubectl get cm/sss4postgres
    NAME          DATA   AGE
-   sss4mariadb   1      1m
+   sss4postgres   1      1m
    ```
 1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss.yaml) and create StatefulSet.
    ```sh
-   # kubectl create -f stateful-mariadb-sss.yml
+   # kubectl create -f stateful-postgres-sss.yml
    ```
 1. Check if the Pods are running.
    ```sh
