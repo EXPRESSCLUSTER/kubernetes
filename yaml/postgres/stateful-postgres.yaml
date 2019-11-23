@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-sss
+spec:
+  serviceName: postgres-sss
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stateful-postgres
+  template:
+    metadata:
+      labels:
+        app: stateful-postgres
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+          - name: pvc-volume
+            mountPath: /var/lib/postgresql/data
+          envFrom:
+          - configMapRef:
+              name: postgres-config
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-volume
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi
+
