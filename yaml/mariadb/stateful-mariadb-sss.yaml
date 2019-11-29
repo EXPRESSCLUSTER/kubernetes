@@ -24,7 +24,7 @@ spec:
             mountPath: /var/lib/mysql
           env:
           - name: MYSQL_ROOT_PASSWORD
-            value: cluster-0
+            value: password
           - name: MYSQL_DATABASE
             value: watch
         - name: sss
