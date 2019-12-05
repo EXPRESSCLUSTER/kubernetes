@@ -108,10 +108,11 @@
 ## Setup Master Node
 1. Initialize a cluster.
    ```bash
-   # kubeadm init --apiserver-advertise-address=192.168.1.225 --pod-network-cidr=192.168.0.0/16 --token-ttl 0
+   # kubeadm init --apiserver-advertise-address=192.168.1.225 --pod-network-cidr=10.0.0.0/16 --token-ttl 0
    ```
    - --apiserver-advertise-address: IP address of master node
    - --pod-network-cidr: It depends on Container Networking Interface (e.g. Calico, Flannnel, Canal and so on). In this case, we use Calico.
+     - If your node network is 192.168.x.0/24, please change the default Calico network 192.168.0.0/16 to the other network (e.g. 10.0.0.16).
    - --token-ttl: **0** means **never expire**.
 1. After initialization, take a note the following command. It is required to add a worker node to the cluster.
    ```bash
@@ -164,4 +165,44 @@
    centos-151   Ready    master   50m     v1.15.0
    centos-152   Ready    <none>   40m     v1.15.0
    centos-153   Ready    <none>   30m     v1.15.0
+   ```
+
+## Deploy metrics-server
+1. Install git.
+   ```sh
+   # yum install git
+   ```
+1. Clone metrics-server reository.
+   ```sh
+   # git clone https://github.com/kubernetes-sigs/metrics-server.git
+   ```
+1. Add **command** to metrics-server-deployment.yaml
+   ```yaml
+    :
+   imagePUllPolicy: Always
+   command:
+   - /metrics-server
+   - --kubelet-insecure-tls
+   - --kubelet-preferred-address-types=InternalDNS,InternalIP,ExternalDNS,ExternalIP,Hostname
+   ```
+1. Apply the yaml files.
+   ```sh
+   # kubectl apply -f metrics-server/deploy/1.8+/
+   ```
+1. After some minutes, run kubectl top command.
+   ```sh
+   # kubectl top pod --all-namespaces
+   NAMESPACE     NAME                                       CPU(cores)   MEMORY(bytes)
+   kube-system   calico-kube-controllers-564b6667d7-mbgnp   3m           10Mi
+   kube-system   calico-node-6d9wj                          27m          43Mi
+   kube-system   calico-node-9nqxp                          22m          28Mi
+   kube-system   coredns-5644d7b6d9-6j67w                   4m           10Mi
+   kube-system   coredns-5644d7b6d9-hv74v                   5m           10Mi
+   kube-system   etcd-centos7-11                            19m          68Mi
+   kube-system   kube-apiserver-centos7-11                  42m          266Mi
+   kube-system   kube-controller-manager-centos7-11         17m          38Mi
+   kube-system   kube-proxy-hph5b                           6m           11Mi
+   kube-system   kube-proxy-vj5bf                           2m           13Mi
+   kube-system   kube-scheduler-centos7-11                  2m           15Mi
+   kube-system   metrics-server-9f9dbd8fc-hr6mr             2m           10Mi
    ```
