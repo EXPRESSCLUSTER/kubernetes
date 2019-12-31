@@ -320,7 +320,7 @@
    ```
 
 ### Deploy Fluentd Container
-1. Download ConfigMap and set IP address of Fluentd.
+1. Download [ConfigMap file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/fluentd/fluent.conf) and set IP address of Fluentd.
    ```
    <match **>
      @type forward
@@ -341,3 +341,9 @@
    # kubectl create cm fluentd --from-file=fluent.conf
    ```
 1. Download yaml file and apply it.
+   - [MaridDB + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb-sss-fluentd.yaml)
+   - [PostgreSQL + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss-fluentd.yaml)
+   ```sh
+   Example:
+   # kubectl apply -f stateful-mariadb-sss-fluentd.yaml
+   ```
