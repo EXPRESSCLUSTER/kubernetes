@@ -6,26 +6,27 @@
 - [Evaluation Configuration](#evaluation-configuration)
 - [Monitoring MariaDB](#Monitoring-MariaDB)
 - [Monitoring PostgreSQL](#Monitoring-PostgreSQL)
+- [Logging](#Logging)
 
 ## Overview
-- SingleServerSafe container connects to the database using SQL.
-- If SingleServerSafe cannot receive response within timeout (default: 60 sec) from the database, SingleServerSafe teminate the database process.
+- SingleServerSafe container connects to the application.
+- If SingleServerSafe cannot receive response within timeout (default: 60 sec) from the application, SingleServerSafe terminate the application process.
   ```
    +--------------------------------+
    | Pod                            |
    | +----------------------------+ |
    | | SingleServerSafe container | |
    | +--|-------------------------+ |
-   |    | (Monitoring using SQL)    |
+   |    | Monitoring                |
    | +--V-------------------------+ |
-   | | Database container         | |
+   | | Application (e.g. Database)| |
    | +--------------------+-------+ |
    +----------------------|---------+
-                          | (Mount persistent volume)
+                          | Mount persistent volume
    +----------------------|---------+
    | Persistent Volume    |         |
    | +--------------------+-------+ |
-   | | Database files             | |
+   | | Files (e.g. Database files)| |
    | +----------------------------+ |
    +--------------------------------+
   ```
@@ -258,3 +259,60 @@
    postgres-sss-0   2/2     Running   1          5m14s
    postgres-sss-1   2/2     Running   0          5m7s
    ```
+
+## Logging
+- This is an example to set up Fluentd container send SingleServerSafe log to the other Fluentd.
+  ```
+   +--------------------------------+
+   | Pod                            |
+   | +----------------------------+ | Send logs to the other Fluentd
+   | | Fluentd container        -------> 
+   | +------------|---------------+ |
+   |              | Tail logs       |
+   |  +-----------V--------------+  |
+   |  | emptyDir                 |  |
+   |  +-----------A--------------+  |
+   |              | Output logs     |
+   | +------------|---------------+ |
+   | | SingleServerSafe container | |
+   | +--|-------------------------+ |
+   |    | Monitoring                |
+   | +--V-------------------------+ |
+   | | Application (e.g. Database)| |
+   | +--------------------+-------+ |
+   +----------------------|---------+
+                          | Mount persistent volume
+   +----------------------|---------+
+   | Persistent Volume    |         |
+   | +--------------------+-------+ |
+   | | Files (e.g. Database files)| |
+   | +----------------------------+ |
+   +--------------------------------+
+  ```
+  
+### Install Fluentd (Receiver)
+1. Install Fluentd to some Linux machine.
+1. Modify /etc/td-agent/td-agent.conf as below.
+   ```
+   <source>
+     @type forward
+     port 24224
+     bind 0.0.0.0
+   </source>
+   <match **>
+     @type file
+     format single_value
+     append true
+     path /var/log/td-agent/containers.log
+     time_slice_format %Y-%m-%d
+     <buffer>
+       path /var/log/td-agent/buf-recv
+       flush_mode interval
+       flush_interval 10s
+     </buffer>
+   </match>
+   ```
+
+### Deploy Fluentd Container (Sender)
+1. Create ConfigMap for Fluentd.
+1. 
