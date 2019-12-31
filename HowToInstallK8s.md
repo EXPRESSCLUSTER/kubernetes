@@ -6,6 +6,7 @@
 - [Install kubernetes on CentOS](#Install-kubernetes-on-CentOS)
 - [Setup Master Node](#Setup-Master-Node)
 - [Add Worker Node to the Cluster](#Add-Worker-Node-to-the-Cluster)
+- [Deploy metrics-server](#deploy-metrics-server)
 
 ## Evaluation Configuration
 ```

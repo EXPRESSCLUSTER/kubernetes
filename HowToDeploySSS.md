@@ -290,8 +290,8 @@
    +--------------------------------+
   ```
   
-### Install Fluentd (Receiver)
-1. Install Fluentd to some Linux machine.
+### Install Fluentd
+1. Install Fluentd to some Linux machine. For detail, please refer to https://docs.fluentd.org/installation.
 1. Modify /etc/td-agent/td-agent.conf as below.
    ```
    <source>
@@ -306,13 +306,38 @@
      path /var/log/td-agent/containers.log
      time_slice_format %Y-%m-%d
      <buffer>
-       path /var/log/td-agent/buf-recv
+       path /var/log/td-agent/buffer
        flush_mode interval
        flush_interval 10s
      </buffer>
    </match>
    ```
+1. Restart Fluentd.
+   ```sh
+   # systemctl enable td-agent
+   # systemctl daemon-reload
+   # systemctl restart td-agent
+   ```
 
-### Deploy Fluentd Container (Sender)
+### Deploy Fluentd Container
+1. Download ConfigMap and set IP address of Fluentd.
+   ```
+   <match **>
+     @type forward
+     <server>
+       host <IP address>
+       port 24224
+     </server>
+   </match>
+   <source>
+     @type tail
+     format none
+     path /mydata/alertlog.alt
+     tag clp.alt
+   </source>   
+   ```
 1. Create ConfigMap for Fluentd.
-1. 
+   ```sh
+   # kubectl create cm fluentd --from-file=fluent.conf
+   ```
+1. Download yaml file and apply it.

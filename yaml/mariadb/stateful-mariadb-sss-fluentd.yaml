@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb-sss
+spec:
+  serviceName: mariadb
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stateful-mariadb
+  template:
+    metadata:
+      labels:
+        app: stateful-mariadb
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: mariadb
+          image: mariadb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+          - name: pvc-volume
+            mountPath: /var/lib/mysql
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: cluster-0
+          - name: MYSQL_DATABASE
+            value: watch
+        - name: sss
+          image: expresscluster/sss4mariadb:4.1.2-1
+          command: ['/usr/local/bin/docker-entrypoint.sh']
+          volumeMounts:
+            - name: config
+              mountPath: /opt/nec/clusterpro/etc/sss4mariadb.conf
+              subPath: sss4mariadb.conf
+            - name: share
+              mountPath: /opt/nec/clusterpro/alert/log
+        - name: fluentd
+          image: fluentd
+          volumeMounts:
+            - name: fluent-conf
+              mountPath: /fluentd/etc/fluent.conf
+              subPath: fluent.conf
+            - name: share
+              mountPath: /mydata
+      volumes:
+        - name: config
+          configMap:
+            name: sss4mariadb
+        - name: fluent-conf
+          configMap:
+            name: fluentd
+        - name: share
+          emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-volume
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi
+
