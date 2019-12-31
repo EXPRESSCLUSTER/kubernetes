@@ -347,3 +347,20 @@
    Example:
    # kubectl apply -f stateful-mariadb-sss-fluentd.yaml
    ```
+1. If you install metrics-server, you can check memory usage of containers.
+   ```sh
+   # kubectl top pod --containers
+   POD              NAME       CPU(cores)   MEMORY(bytes)
+   mariadb-sss-0    fluentd    3m           49Mi
+   mariadb-sss-0    sss        8m           44Mi
+   mariadb-sss-0    mariadb    2m           88Mi
+   mariadb-sss-1    mariadb    2m           76Mi
+   mariadb-sss-1    sss        7m           47Mi
+   mariadb-sss-1    fluentd    3m           43Mi
+   postgres-sss-0   postgres   4m           16Mi
+   postgres-sss-0   fluentd    4m           46Mi
+   postgres-sss-0   sss        9m           44Mi
+   postgres-sss-1   sss        8m           51Mi
+   postgres-sss-1   postgres   5m           16Mi
+   postgres-sss-1   fluentd    3m           44Mi   
+   ```
