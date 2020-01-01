@@ -347,6 +347,11 @@
    Example:
    # kubectl apply -f stateful-mariadb-sss-fluentd.yaml
    ```
+1. If you check /var/log/td-agent/containers-YYYY-MM-DD.log, you can see the alter logs of SingleServerSafe.
+   ```
+   9         2019/12/31 13:41:59.981 (snip) postgres-sss-1 (snip) Activating group failover has completed.
+   10        2019/12/31 13:41:59.997 (snip) postgres-sss-1 (snip) Monitoring psqlw has started.   
+   ```
 1. If you install metrics-server, you can check memory usage of containers.
    ```sh
    # kubectl top pod --containers
