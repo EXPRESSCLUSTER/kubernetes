@@ -1,4 +1,4 @@
-# CLUSTERPRO X SingleServerSafe のデプロイ方法(編集中)
+# CLUSTERPRO X SingleServerSafe のデプロイ方法
 - CLUSTERPRO X SingleServerSafe を**サイドカー・パターン**でデプロイし、アプリケーションコンテナを監視する方法を紹介します。
 
 ## Index
@@ -37,11 +37,12 @@
 - CentOS 7.6.1810
 - kubernetes v1.15.0
 - Docker 18.09.7
+- MariaDB 10.1, 10.4
 
 ## MariaDBを監視する
 ### 前提
 - データベースコンテナには、SingleServerSafe が監視するためのデータベースが必要です。本手順では、コンテナデプロイ時に監視用のデータベースとユーザを作成します。
-- データベースファイルは永続データであるため、StatefulSet としてデプロイし、Pod に PersistentVolume を割り当てます。
+- データベースファイルは永続データであるため、データベースコンテナと SingleServerSafe コンテナを StatefulSet としてデプロイし、Pod に PersistentVolume を割り当てます。
 - StatefulSet が使用する PersistentVolume、Service は事前に作成しておいてください。
 
 ### ConfigMap、Secret の作成
@@ -58,7 +59,7 @@
    NAME           TYPE     DATA   AGE
    mariadb-auth   Opaque   2      1m
    ```
-1. [SingleServerSafe の設定ファイル(sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/sss4mariadb.conf)をダウンロードする。
+1. [SingleServerSafe の設定ファイル(sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/beta/sss4mariadb.conf)をダウンロードする。
 1. ダウンロードした設定ファイルを指定し、SingleServerSave の設定情報を保持する ConfigMap (name: sss4mariadb) を作成する。
    ```sh
    # kubectl create configmap --save-config sss4mariadb --from-file=sss4mariadb.conf
@@ -71,7 +72,7 @@
    ```
 
 ### MariaDB + SingleServerSafe のデプロイ
-1. [StatefulSet のマニフェストファイル(yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss.yaml)をダウンロードし、以下のパラメータを必要に応じて編集。
+1. [StatefulSet のマニフェストファイル(yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/beta/sample-sts-mariadb-sss.yaml)をダウンロードし、以下のパラメータを必要に応じて編集。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にすること。
    - MariaDB コンテナの環境変数
      ```yaml
              env:
