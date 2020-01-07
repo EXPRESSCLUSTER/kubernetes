@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb-sss
+  labels:
+    app: mariadb
+spec:
+  serviceName: mariadb
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      shareProcessNamespace: true
+      restartPolicy: Always
+      containers:
+      - name: mariadb
+        image: mariadb
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-auth
+              key: root-password
+        - name: MYSQL_DATABASE
+          value: watch
+        - name: MYSQL_USER
+          value: watcher
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-auth
+              key: user-password
+      - name: sss
+        image: expresscluster/sss4mariadb:4.1.2-1.1
+        resources:
+          requests:
+            cpu: 20m
+            memory: 50Mi
+          limits:
+            cpu: 30m
+            memory: 100Mi
+        command: ["/entrypoint.sh"]
+        livenessProbe:
+          exec:
+            command: ["/opt/nec/clusterpro/bin/clphealthchk"]
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 1
+          failureThreshold: 2
+          successThreshold: 1
+        volumeMounts:
+        - name: sss4mariadb-config
+          mountPath: /config
+        env:
+        - name: SSS_MAIN_CONTAINER_PROCNAME
+          value: mysqld
+        - name: SSS_MONITOR_DB_NAME
+          value: watch
+        - name: SSS_MONITOR_DB_USER
+          value: watcher
+        - name: SSS_MONITOR_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-auth
+              key: user-password
+        - name: SSS_MONITOR_DB_PORT
+          value: "3306"
+        - name: SSS_MONITOR_PERIOD_SEC
+          value: "10"
+        - name: SSS_MONITOR_TIMEOUT_SEC
+          value: "10"
+        - name: SSS_MONITOR_RETRY_CNT
+          value: "2"
+        - name: SSS_MONITOR_INITIAL_DELAY_SEC
+          value: "0"
+        - name: SSS_NORECOVERY
+          value: "0"
+      volumes:
+      - name: sss4mariadb-config
+        configMap:
+          name: sss4mariadb
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      storageClassName: standard
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
