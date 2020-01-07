@@ -6,26 +6,27 @@
 - [Evaluation Configuration](#evaluation-configuration)
 - [Monitoring MariaDB](#Monitoring-MariaDB)
 - [Monitoring PostgreSQL](#Monitoring-PostgreSQL)
+- [Logging](#Logging)
 
 ## Overview
-- SingleServerSafe container connects to the database using SQL.
-- If SingleServerSafe cannot receive response within timeout (default: 60 sec) from the database, SingleServerSafe teminate the database process.
+- SingleServerSafe container connects to the application.
+- If SingleServerSafe cannot receive response within timeout (default: 60 sec) from the application, SingleServerSafe terminate the application process.
   ```
    +--------------------------------+
    | Pod                            |
    | +----------------------------+ |
    | | SingleServerSafe container | |
    | +--|-------------------------+ |
-   |    | (Monitoring using SQL)    |
+   |    | Monitoring                |
    | +--V-------------------------+ |
-   | | Database container         | |
+   | | Application (e.g. Database)| |
    | +--------------------+-------+ |
    +----------------------|---------+
-                          | (Mount persistent volume)
+                          | Mount persistent volume
    +----------------------|---------+
    | Persistent Volume    |         |
    | +--------------------+-------+ |
-   | | Database files             | |
+   | | Files (e.g. Database files)| |
    | +----------------------------+ |
    +--------------------------------+
   ```
@@ -257,4 +258,117 @@
    NAME             READY   STATUS    RESTARTS   AGE
    postgres-sss-0   2/2     Running   1          5m14s
    postgres-sss-1   2/2     Running   0          5m7s
+   ```
+
+## Logging
+- This is an example to set up Fluentd container send SingleServerSafe log to the other Fluentd.
+  ```
+   +--------------------------------+
+   | Pod                            |
+   | +----------------------------+ | Send logs to the other Fluentd
+   | | Fluentd container        -------> 
+   | +------------|---------------+ |
+   |              | Tail logs       |
+   |  +-----------V--------------+  |
+   |  | emptyDir                 |  |
+   |  +-----------A--------------+  |
+   |              | Output logs     |
+   | +------------|---------------+ |
+   | | SingleServerSafe container | |
+   | +--|-------------------------+ |
+   |    | Monitoring                |
+   | +--V-------------------------+ |
+   | | Application (e.g. Database)| |
+   | +--------------------+-------+ |
+   +----------------------|---------+
+                          | Mount persistent volume
+   +----------------------|---------+
+   | Persistent Volume    |         |
+   | +--------------------+-------+ |
+   | | Files (e.g. Database files)| |
+   | +----------------------------+ |
+   +--------------------------------+
+  ```
+  
+### Install Fluentd
+1. Install Fluentd to some Linux machine. For detail, please refer to https://docs.fluentd.org/installation.
+1. Modify /etc/td-agent/td-agent.conf as below.
+   ```
+   <source>
+     @type forward
+     port 24224
+     bind 0.0.0.0
+   </source>
+   <match **>
+     @type file
+     format single_value
+     append true
+     path /var/log/td-agent/containers.log
+     time_slice_format %Y-%m-%d
+     <buffer>
+       path /var/log/td-agent/buffer
+       flush_mode interval
+       flush_interval 10s
+     </buffer>
+   </match>
+   ```
+1. Restart Fluentd.
+   ```sh
+   # systemctl enable td-agent
+   # systemctl daemon-reload
+   # systemctl restart td-agent
+   ```
+
+### Deploy Fluentd Container
+1. Download [ConfigMap file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/fluentd/fluent.conf) and set IP address of Fluentd.
+   ```
+   <match **>
+     @type forward
+     <server>
+       host <IP address>
+       port 24224
+     </server>
+   </match>
+   <source>
+     @type tail
+     format none
+     path /mydata/alertlog.alt
+     tag clp.alt
+   </source>   
+   ```
+1. Create ConfigMap for Fluentd.
+   ```sh
+   # kubectl create cm fluentd --from-file=fluent.conf
+   ```
+1. Download yaml file and apply it.
+   - [MaridDB + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb-sss-fluentd.yaml)
+   - [PostgreSQL + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss-fluentd.yaml)
+   ```sh
+   Example:
+   # kubectl apply -f stateful-mariadb-sss-fluentd.yaml
+   ```
+1. If you install metrics-server, you can check memory usage of containers.
+   ```sh
+   # kubectl top pod --containers
+   POD              NAME       CPU(cores)   MEMORY(bytes)
+   mariadb-sss-0    fluentd    3m           49Mi
+   mariadb-sss-0    sss        8m           44Mi
+   mariadb-sss-0    mariadb    2m           88Mi
+   mariadb-sss-1    mariadb    2m           76Mi
+   mariadb-sss-1    sss        7m           47Mi
+   mariadb-sss-1    fluentd    3m           43Mi
+   postgres-sss-0   postgres   4m           16Mi
+   postgres-sss-0   fluentd    4m           46Mi
+   postgres-sss-0   sss        9m           44Mi
+   postgres-sss-1   sss        8m           51Mi
+   postgres-sss-1   postgres   5m           16Mi
+   postgres-sss-1   fluentd    3m           44Mi   
+   ```
+
+### Verify Functionality
+1. If you check /var/log/td-agent/containers-YYYY-MM-DD.log, you can see the alter logs of SingleServerSafe.
+   ```
+    :
+   9         2019/12/31 13:41:59.981 (snip) postgres-sss-1 (snip) Activating group failover has completed.
+   10        2019/12/31 13:41:59.997 (snip) postgres-sss-1 (snip) Monitoring psqlw has started.   
    ```
