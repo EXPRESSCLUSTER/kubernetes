@@ -31,12 +31,12 @@
   ```
 
 ## 動作確認済みの構成
-- Master Node (1 ノード)
-- Worker Node (2 ノード)
-- CentOS 7.6.1810
 - kubernetes v1.15.0
+  - Master Node (1 ノード) / CentOS 7.6.1810
+  - Worker Node (2 ノード) / CentOS 7.6.1810
 - Docker 18.09.7
-- MariaDB 10.1, 10.4
+- アプリケーションコンテナ
+  - MariaDB 10.1, 10.4
 
 ## MariaDBを監視する
 ### 前提
@@ -120,7 +120,7 @@
      ```
 1. マニフェストを適用し、StatefulSet を作成。
    ```sh
-   kubectl apply -f sample-sts-mariadb-sss.yaml
+   # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
 
 1. Pod が Running であることを確認。
@@ -202,11 +202,11 @@
 
 ### 監視パラメータを変更するには
 1. マニフェストファイル(yaml)の環境変数の値を変更。
-1. マニフェストを適用し、StatefulSet を更新。
+1. 変更したマニフェストを適用し、StatefulSet を更新。
    ```sh
-   kubectl apply -f sample-sts-mariadb-sss.yaml
+   # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
-1. ローリングアップデートにより一つずつ Pod が再作成される。
+1. ローリングアップデートにより一つずつ Pod が再作成され、変更後のパラメータで Running になる。
    ```sh
    # kubectl get pod
    NAME            READY   STATUS        RESTARTS   AGE
