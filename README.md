@@ -5,4 +5,6 @@
 - Please refer to [How to Install kubernetes](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToInstallK8s.md).
 
 ## How to Deploy EXPRESSCLUSTER X SingleServerSafe
-- Please refer to [How to Deploy EXPRESSCLUSTER X SingleServerSafe](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToDeploySSS.md). 
+- Please refer to the following steps.
+  - [English](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToDeploySSS.md)
+  - [Japanese](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToDeploySSS_jp.md)
