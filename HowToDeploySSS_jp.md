@@ -33,7 +33,7 @@
 ## 動作確認済みの構成
 - kubernetes v1.15.0
   - Master Node (1 ノード) / CentOS 7.6.1810
-  - Worker Node (2 ノード) / CentOS 7.6.1810
+  - Worker Node (3 ノード) / CentOS 7.6.1810
 - Docker 18.09.7
 - アプリケーションコンテナ
   - MariaDB 10.1, 10.4
@@ -46,24 +46,24 @@
 
 ### ConfigMap、Secret の作成
 
-1. データベースの<ルートユーザのパスワード>、<監視ユーザのパスワード>を指定し、データベース認証情報を保持する Secret (name: mariadb-auth) を作成。
+1. データベースの<ルートユーザのパスワード>、<監視ユーザのパスワード>を指定し、データベース認証情報を保持する Secret (name: mariadb-auth) を作成してください。
    ```sh
    # kubectl create secret generic --save-config mariadb-auth \
    --from-literal=root-password=<ルートユーザのパスワード> \
    --from-literal=user-password=<監視ユーザのパスワード>
    ```
-1. Secret が作成されたかを確認。
+1. Secret が作成されたかを確認してください。
    ```sh
    # kubectl get secret/mariadb-auth
    NAME           TYPE     DATA   AGE
    mariadb-auth   Opaque   2      1m
    ```
-1. [SingleServerSafe の設定ファイル(sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/beta/sss4mariadb.conf)をダウンロードする。
-1. ダウンロードした設定ファイルを指定し、SingleServerSave の設定情報を保持する ConfigMap (name: sss4mariadb) を作成する。
+1. [SingleServerSafe の設定ファイル (sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/beta/sss4mariadb.conf)をダウンロードしてください。
+1. ダウンロードした設定ファイルを指定し、SingleServerSave の設定情報を保持する ConfigMap (name: sss4mariadb) を作成してください。
    ```sh
    # kubectl create configmap --save-config sss4mariadb --from-file=sss4mariadb.conf
    ```
-1. ConfigMap が作成されたかを確認。
+1. ConfigMap が作成されたことを確認してください。
    ```sh
    # kubectl get configmap/sss4mariadb
    NAME          DATA   AGE
@@ -71,7 +71,7 @@
    ```
 
 ### MariaDB + SingleServerSafe のデプロイ
-1. [StatefulSet のマニフェストファイル(yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/beta/sample-sts-mariadb-sss.yaml)をダウンロードし、以下のパラメータを必要に応じて編集。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にすること。
+1. [StatefulSet のマニフェストファイル (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/beta/sample-sts-mariadb-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
    - MariaDB コンテナの環境変数
      ```yaml
              env:
@@ -118,12 +118,12 @@
                value: "0"                 # 監視エラー時に対象コンテナを終了させない
                                           # (0:終了させる、1:終了させない)
      ```
-1. マニフェストを適用し、StatefulSet を作成。
+1. マニフェストを適用し、StatefulSet を作成してください。
    ```sh
    # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
 
-1. Pod が Running であることを確認。
+1. Pod が Running であることを確認してください。
    ```sh
    # kubectl get pod
    NAME            READY   STATUS    RESTARTS   AGE
@@ -132,7 +132,7 @@
    mariadb-sss-2   2/2     Running   0          21s
    ```
 
-1. SingleServerSafe が Online であることを確認。
+1. SingleServerSafe が Online であることを確認してください。
    ```sh
    # for i in {0..2}; do kubectl exec -it mariadb-sss-$i -c sss clpstat; done
     ========================  CLUSTER STATUS  ===========================
@@ -174,16 +174,16 @@
    ```
 
 ### 動作確認
-1. MariaDB コンテナで bash を実行。
+1. MariaDB コンテナで bash を実行してください。
    ```sh
    # kubectl exec -it mariadb-sss-0 -c mariadb bash
    ```
-1. mysqld プロセスに SIGSTOP シグナルを送信。
+1. mysqld プロセスに SIGSTOP シグナルを送信してください。
    ```sh
    # kill -s SIGSTOP `pgrep mysqld`
    ```
-1. SingleServerSafe コンテナが異常を検出し、mysqld プロセスを終了させる。その結果、kubernetes による再起動が実行され、MariaDB コンテナが復帰。
-   - SingleServerSafe の終了処理により、MariaDB コンテナが Error になる。
+1. SingleServerSafe コンテナが異常を検出し、mysqld プロセスを終了させます。その結果、kubernetes により、MariaDB コンテの再起動が実行されます。
+   - SingleServerSafe による mysqld プロセスの終了処理により、MariaDB コンテナが Error になります。
      ```sh
      # kubectl get pod
      NAME            READY   STATUS    RESTARTS   AGE
@@ -191,7 +191,7 @@
      mariadb-sss-1   2/2     Running   0          7m38s
      mariadb-sss-2   2/2     Running   0          7m20s
      ```
-   - kubernetes の再起動により、MariaDB コンテナが Running になる。(RESTARTS が +1 される)
+   - kubernetes による MariaDB コンテナの再起動により、MariaDB コンテナが Running になります (RESTARTS が +1 されます)。
      ```sh
      # kubectl get pod
      NAME            READY   STATUS    RESTARTS   AGE
@@ -200,13 +200,13 @@
      mariadb-sss-2   2/2     Running   0          7m24s
      ```
 
-### 監視パラメータを変更するには
-1. マニフェストファイル(yaml)の環境変数の値を変更。
-1. 変更したマニフェストを適用し、StatefulSet を更新。
+### 監視パラメータの変更
+1. マニフェストファイル (yaml) の環境変数の値を変更してください。
+1. 変更したマニフェストを適用し、StatefulSet を更新してください。
    ```sh
    # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
-1. ローリングアップデートにより一つずつ Pod が再作成され、変更後のパラメータで Running になる。
+1. ローリングアップデートにより一つずつ Pod が再作成されます。
    ```sh
    # kubectl get pod
    NAME            READY   STATUS        RESTARTS   AGE
