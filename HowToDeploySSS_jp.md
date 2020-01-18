@@ -44,8 +44,7 @@
 - データベースファイルは永続データであるため、データベースコンテナと SingleServerSafe コンテナを StatefulSet としてデプロイし、Pod に PersistentVolume を割り当てます。
 - StatefulSet が使用する PersistentVolume、Service は事前に作成しておいてください。
 
-### ConfigMap、Secret の作成
-
+### Secret および ConfigMap の作成
 1. データベースの<ルートユーザのパスワード>、<監視ユーザのパスワード>を指定し、データベース認証情報を保持する Secret (name: mariadb-auth) を作成してください。
    ```sh
    # kubectl create secret generic --save-config mariadb-auth \
@@ -58,7 +57,7 @@
    NAME           TYPE     DATA   AGE
    mariadb-auth   Opaque   2      1m
    ```
-1. [SingleServerSafe の設定ファイル (sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/beta/sss4mariadb.conf)をダウンロードしてください。
+1. [SingleServerSafe の設定ファイル (sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/sss4mariadb.conf)をダウンロードしてください。
 1. ダウンロードした設定ファイルを指定し、SingleServerSave の設定情報を保持する ConfigMap (name: sss4mariadb) を作成してください。
    ```sh
    # kubectl create configmap --save-config sss4mariadb --from-file=sss4mariadb.conf
@@ -70,8 +69,8 @@
    sss4mariadb   1      1m
    ```
 
-### MariaDB + SingleServerSafe のデプロイ
-1. [StatefulSet のマニフェストファイル (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/beta/sample-sts-mariadb-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
+### MariaDB および SingleServerSafe のデプロイ
+1. [StatefulSet のマニフェストファイル (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
    - MariaDB コンテナの環境変数
      ```yaml
              env:

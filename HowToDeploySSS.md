@@ -39,95 +39,130 @@
 - Docker 1.13.1
 
 ## Monitoring MariaDB
-### Create Database
-1. Create a persistent volume for MariaDB. The following expamle uses StatefulSet.
-1. Download [the yaml file for MariaDB only](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb.yaml) and edit the following parameters.
-   ```yml
-             env:
-             - name: MYSQL_ROOT_PASSWORD
-               value: password
-             - name: MYSQL_DATABASE
-               value: watch
-   ```   
-1. Apply it.
-   ```sh
-   # kubectl apply -f stateful-mariadb.yaml
-   ```
-1. Check if MYSQL_DATABSE (e.g. **watch**) directory exists on the persistent volume.
-   ```sh
-   # ls -l
+### Prerequisite
+- Create a persistent volume for MariaDB in advance.
+- The following expamle uses StatefulSet.
 
-   -rw-rw---- 1 polkitd ssh_keys    32768 Nov 21 07:06 aria_log.00000001
-   -rw-rw---- 1 polkitd ssh_keys       52 Nov 21 07:06 aria_log_control
-    :
-   drwx------ 2 polkitd ssh_keys     4096 Nov 21 07:06 mysql
-   drwx------ 2 polkitd ssh_keys       20 Nov 21 07:03 performance_schema
-   drwx------ 2 polkitd ssh_keys       20 Nov 21 07:06 watch   
-   ```
-1. Delete it.
+### Create Secret and ConfigMap
+1. Create Secret (name: mariadb-auth) to save password of root user and a user for monitoring.
    ```sh
-   # kubectl delete -f stateful-mariadb.yaml
+   # kubectl create secret generic --save-config mariadb-auth \
+   --from-literal=root-password=<password of root user> \
+   --from-literal=user-password=<password of a user for monitoring>
    ```
-### Deploy MariaDB and SingleServerSafe
-1. Download [the config file for SingleServerSafe](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/sss4mariadb.conf) and edit the following parameters.
-   - interval
-   - timeout
-   - database
-   - username
-   - password
-     ```xml
-       <monitor>
-         <types name="mysqlw"/>
-         <mysqlw name="mysqlw">
-           <polling>
-             <interval>10</interval>
-             <timeout>60</timeout>
-           : 
-           <parameters>
-             <database>watch</database>
-             <username>root</username>
-             <password>password</password>
-     ```
-1. Create ConfigMap.
+1. Check if the Secret exists.
    ```sh
-   # kubectl create cm sss4mariadb --from-file=sss4mariadb.conf
+   # kubectl get secret/mariadb-auth
+   NAME           TYPE     DATA   AGE
+   mariadb-auth   Opaque   2      1m
    ```
-1. Check if the config map is created.
+1. Download SingleServerSafe [config file (sss4mariadb.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/mariadb/sss4mariadb.conf).
+1. Create ConfigMap (name: sss4mariadb).
    ```sh
-   # kubectl get cm/sss4mariadb
+   # kubectl create configmap --save-config sss4mariadb --from-file=sss4mariadb.conf
+   ```
+1. Check if the ConfigMap exists.
+   ```sh
+   # kubectl get configmap/sss4mariadb
    NAME          DATA   AGE
    sss4mariadb   1      1m
    ```
-1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb-sss.yaml) and edit the following parameters.
-   ```yml
+
+### Deploy MariaDB and SingleServerSafe
+1. Download [manifest file (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss.yaml) and modify the following parameters. Set the same value for **Database Name** and **User Name for Monitoring**.
+   - Variables of MariaDB
+     ```yaml
              env:
              - name: MYSQL_ROOT_PASSWORD
-               value: password
+               valueFrom:
+                 secretKeyRef:
+                   name: mariadb-auth
+                   key: root-password
              - name: MYSQL_DATABASE
-               value: watch
-   ```   
+               value: watch               # Database Name for Monitoring
+             - name: MYSQL_USER
+               value: watcher             # User Name for Monitoring
+             - name: MYSQL_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: mariadb-auth
+                   key: user-password
+     ```
+   - Variables of SingleServerSafe
+     ```yaml
+             env:
+             - name: SSS_MAIN_CONTAINER_PROCNAME
+               value: mysqld
+             - name: SSS_MONITOR_DB_NAME
+               value: watch               # Database for Name for Monitoring
+             - name: SSS_MONITOR_DB_USER
+               value: watcher             # User Name for Monitoring
+             - name: SSS_MONITOR_DB_PASS
+               valueFrom:
+                 secretKeyRef:
+                   name: mariadb-auth
+                   key: user-password
+             - name: SSS_MONITOR_DB_PORT
+               value: "3306"              # Port Number of MariaDB
+             - name: SSS_MONITOR_PERIOD_SEC
+               value: "10"                # Interval [sec]
+             - name: SSS_MONITOR_TIMEOUT_SEC
+               value: "10"                # Timeout [sec]
+             - name: SSS_MONITOR_RETRY_CNT
+               value: "2"                 # Retry
+             - name: SSS_MONITOR_INITIAL_DELAY_SEC
+               value: "0"                 # Initial Delay [sec]
+             - name: SSS_NORECOVERY
+               value: "0"                 # Terminate Container
+                                          # (0: Terminate, 1: Do Nothing)
+     ```
 1. Create StatefulSet.
    ```sh
-   # kubectl create -f stateful-mariadb-sss.yml
+   # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
-1. Check if the Pods are running.
+1. Check if all pods are running.
    ```sh
    # kubectl get pod
-   NAME                                     READY   STATUS    RESTARTS   AGE
-   mariadb-sss-0                            2/2     Running   0          6m19s
-   mariadb-sss-1                            2/2     Running   0          5m57s
+   NAME            READY   STATUS    RESTARTS   AGE
+   mariadb-sss-0   2/2     Running   0          55s
+   mariadb-sss-1   2/2     Running   0          39s
+   mariadb-sss-2   2/2     Running   0          21s
    ```
-1. Check if SingleServerSafe is running.
+1. Check if SingleServerSafe is online on each container.
    ```sh
-   # kubectl exec mariadb-sss-0 -c sss clpstat
+   # for i in {0..2}; do kubectl exec -it mariadb-sss-$i -c sss clpstat; done
     ========================  CLUSTER STATUS  ===========================
      Cluster : mariadb-sss-0
      <server>
       *mariadb-sss-0 ...: Online
          lanhb1         : Normal           LAN Heartbeat
      <group>
-       failover ........: Online
+       container-recove : Online
          current        : mariadb-sss-0
+         exec           : Online
+     <monitor>
+       mysqlw           : Normal
+    =====================================================================
+    ========================  CLUSTER STATUS  ===========================
+     Cluster : mariadb-sss-1
+     <server>
+      *mariadb-sss-1 ...: Online
+         lanhb1         : Normal           LAN Heartbeat
+     <group>
+       container-recove : Online
+         current        : mariadb-sss-1
+         exec           : Online
+     <monitor>
+       mysqlw           : Normal
+    =====================================================================
+    ========================  CLUSTER STATUS  ===========================
+     Cluster : mariadb-sss-2
+     <server>
+      *mariadb-sss-2 ...: Online
+         lanhb1         : Normal           LAN Heartbeat
+     <group>
+       container-recove : Online
+         current        : mariadb-sss-2
          exec           : Online
      <monitor>
        mysqlw           : Normal
@@ -144,11 +179,50 @@
    # kill -s SIGSTOP `pgrep mysqld`
    ```
 1. SingleServerSafe detects timeout error and terminates mysqld process. Then, MariaDB container stops and kubernetes restart the MariaDB container.
+   - SingleServerSafe terminates mysqld process and STATUS changes to Error.
+     ```sh
+     # kubectl get pod
+     NAME            READY   STATUS    RESTARTS   AGE
+     mariadb-sss-0   1/2     Error     0          7m54s
+     mariadb-sss-1   2/2     Running   0          7m38s
+     mariadb-sss-2   2/2     Running   0          7m20s
+     ```
+   - kubernetes restarts MariaDB container and STATUS changes to Running.
+     ```sh
+     # kubectl get pod
+     NAME            READY   STATUS    RESTARTS   AGE
+     mariadb-sss-0   2/2     Running   1          7m58s
+     mariadb-sss-1   2/2     Running   0          7m42s
+     mariadb-sss-2   2/2     Running   0          7m24s
+     ```
+
+### Change Variables for Monitoring
+1. Modify variables in the manifest file (sample-sts-mariadb-sss.yaml).
+1. Apply the modified manifest file.
+   ```sh
+   # kubectl apply -f sample-sts-mariadb-sss.yaml
+   ```
+1. The pods are recreated one by one with rolling update.
    ```sh
    # kubectl get pod
-   NAME                                     READY   STATUS    RESTARTS   AGE
-   mariadb-sss-0                            2/2     Running   1          34m
-   mariadb-sss-1                            2/2     Running   0          34m
+   NAME            READY   STATUS        RESTARTS   AGE
+   mariadb-sss-0   2/2     Running       1          19m
+   mariadb-sss-1   2/2     Running       0          19m
+   mariadb-sss-2   2/2     Terminating   0          19m
+   ```
+   ```sh
+   # kubectl get pod
+   NAME            READY   STATUS              RESTARTS   AGE
+   mariadb-sss-0   2/2     Running             1          20m
+   mariadb-sss-1   2/2     Running             0          20m
+   mariadb-sss-2   0/2     ContainerCreating   0          4s
+   ```
+   ```sh
+   # kubectl get pod
+   NAME            READY   STATUS        RESTARTS   AGE
+   mariadb-sss-0   2/2     Running       1          20m
+   mariadb-sss-1   2/2     Terminating   0          20m
+   mariadb-sss-2   2/2     Running       0          21s
    ```
 
 ## Monitoring PostgreSQL
@@ -341,7 +415,6 @@
    # kubectl create cm fluentd --from-file=fluent.conf
    ```
 1. Download yaml file and apply it.
-   - [MaridDB + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/stateful-mariadb-sss-fluentd.yaml)
    - [PostgreSQL + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss-fluentd.yaml)
    ```sh
    Example:

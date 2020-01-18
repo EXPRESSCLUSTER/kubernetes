@@ -53,7 +53,7 @@ spec:
         livenessProbe:
           exec:
             command: ["/opt/nec/clusterpro/bin/clphealthchk"]
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 5
           timeoutSeconds: 1
           failureThreshold: 2
