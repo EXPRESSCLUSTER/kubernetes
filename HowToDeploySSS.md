@@ -415,6 +415,7 @@
    # kubectl create cm fluentd --from-file=fluent.conf
    ```
 1. Download yaml file and apply it.
+   - [MariaDB + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss-fluentd.yaml)
    - [PostgreSQL + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss-fluentd.yaml)
    ```sh
    Example:
