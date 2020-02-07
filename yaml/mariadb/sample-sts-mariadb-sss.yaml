@@ -19,7 +19,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: mariadb
-        image: mariadb
+        image: mariadb:10
         ports:
         - containerPort: 3306
         volumeMounts:
@@ -93,7 +93,6 @@ spec:
   - metadata:
       name: db-data
     spec:
-      storageClassName: standard
       accessModes:
       - ReadWriteOnce
       resources:
