@@ -6,7 +6,6 @@
 - [Evaluation Configuration](#evaluation-configuration)
 - [Monitoring MariaDB](#Monitoring-MariaDB)
 - [Monitoring PostgreSQL](#Monitoring-PostgreSQL)
-- [Logging](#Logging)
 
 ## Overview
 - SingleServerSafe container connects to the application.
@@ -32,18 +31,23 @@
   ```
 
 ## Evaluation Configuration
+### Kubernetes Cluster
 - CentOS
   - Master Node (1 node)
   - Worker Node (3 nodes)
   - CentOS 7.7.1908
   - kubernetes v1.17.2
-  - Docker 1.13.1
+  - Docker 18.09.7
 - Ubuntu
   - Master Node (1 node)
   - Worker Node (3 nodes)
   - Ubuntu 18.04.4 LTS
   - kubernetes v1.17.2
   - Docker 19.03.5
+### Application
+  - MariaDB 10.1, 10.4
+  - PostgreSQL 11.3, 11.6
+  - EXPRESSCLUSTER X SingleServerSafe 4.1 for Linux
 
 ## Monitoring MariaDB
 ### Prerequisite
@@ -185,7 +189,7 @@
    ```sh
    # kill -s SIGSTOP `pgrep mysqld`
    ```
-1. SingleServerSafe detects timeout error and terminates mysqld process. Then, MariaDB container stops and kubernetes restart the MariaDB container.
+1. SingleServerSafe detects timeout error and terminates mysqld process. Then, MariaDB container terminates and kubernetes restart the MariaDB container.
    - SingleServerSafe terminates mysqld process and STATUS changes to Error.
      ```sh
      # kubectl get pod
@@ -238,93 +242,119 @@
 - The following expamle uses StatefulSet.
 
 ### Create Secret and ConfigMap
-1. 
-
-1. Create a persistent volume for PostgreSQL. The following expamle uses StatefulSet.
-1. Download [the config file for PostgreSQL](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/postgres-configmap.yaml) and edit the following parameters.
-   ```yml
-   data:
-   POSTGRES_DB: watch
-   POSTGRES_USER: postgres
-   POSTGRESS_PASSWORD: password
-   ```
-1. Apply the config file.
+1. Create Secret (name: postgres-auth) to save password of root user and a user for monitoring.
    ```sh
-   # kubectl apply -f postgres-configmap.yaml
-   # kubectl get cm/postgres-confg
-   NAME              DATA   AGE
-   postgres-config   3      5s
+   # kubectl create secret generic --save-config postgres-auth \
+   --from-literal=root-password=<password of root user>
    ```
-1. Download [the yaml file for PostgreSQL only](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres.yaml) and apply it.
+1. Check if the Secret exists.
    ```sh
-   # kubectl apply -f stateful-postgres.yaml
+   # kubectl get secret/postgres-auth
+   NAME           TYPE     DATA   AGE
+   postgres-auth  Opaque   2      1m
    ```
-1. Check if PostgreSQL directories and files exist on the persistent volume.
+1. Download SingleServerSafe [config file (sss4postgres.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/sss4postgres.conf).
+1. Create ConfigMap (name: sss4postgres).
    ```sh
-   # ls -l
-
-   drwx------ 6 polkitd ssh_keys    54 Nov 22 22:38 base
-   drwx------ 2 polkitd ssh_keys  4096 Nov 23 07:35 global
-    :
-   -rw------- 1 polkitd ssh_keys    36 Nov 22 22:57 postmaster.opts
-   -rw------- 1 polkitd ssh_keys    94 Nov 22 22:57 postmaster.pid   
+   # kubectl create configmap --save-config sss4postgres --from-file=sss4postgres.conf
    ```
-1. Delete it.
+1. Check if the ConfigMap exists.
    ```sh
-   # kubectl delete -f stateful-postgres.yaml
-   ```
-### Deploy PostgreSQL and SingleServerSafe
-1. Download [the config file for SingleServerSafe](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/sss4postgres.conf) and edit the following parameters.
-   - interval
-   - timeout
-   - database
-   - username
-   - password
-     ```xml
-       <monitor>
-         <types name="psqlw"/>
-         <mysqlw name="psqlw">
-           <polling>
-             <interval>10</interval>
-             <timeout>60</timeout>
-           : 
-           <parameters>
-             <database>watch</database>
-             <username>postgres</username>
-             <password>password</password>
-     ```
-1. Create ConfigMap.
-   ```sh
-   # kubectl create cm sss4postgres --from-file=sss4postgres.conf
-   ```
-1. Check if the config map is created.
-   ```sh
-   # kubectl get cm/sss4postgres
+   # kubectl get configmap/sss4postgres
    NAME          DATA   AGE
-   sss4postgres   1      1m
+   sss4postgres  1      1m
    ```
-1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss.yaml) and create StatefulSet.
+
+### Deploy PostgreSQL and SingleServerSafe
+1. Download [manifest file (sample-sts-postgres-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/sample-sts-postgres-sss.yaml) and modify the following parameters.
+   - Variables of PostgreSQL
+     ```yaml
+             env:
+             - name: POSTGRES_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-auth
+                   key: root-password
+             - name: POSTGRES_DB
+               value: watch               # Database Name for Monitoring
+             - name: POSTGRES_USER
+               value: postgres            # User Name for Monitoring
+     ```
+   - Variables of SingleServerSafe
+     ```yaml
+             env:
+             - name: SSS_MAIN_CONTAINER_PROCNAME
+               value: postgres
+             - name: SSS_MONITOR_DB_NAME
+               value: watch               # Database Name for Monitoring
+             - name: SSS_MONITOR_DB_USER
+               value: postgres            # User Name for Monitoring
+             - name: SSS_MONITOR_DB_PASS
+               valueFrom:
+                 secretKeyRef:
+                   name: postgres-auth
+                   key: root-password
+             - name: SSS_MONITOR_DB_PORT
+               value: "5432"              # Port Number of PostgreSQL
+             - name: SSS_MONITOR_PERIOD_SEC
+               value: "10"                # Interval [sec]
+             - name: SSS_MONITOR_TIMEOUT_SEC
+               value: "10"                # Timeout [sec]
+             - name: SSS_MONITOR_RETRY_CNT
+               value: "2"                 # Retry
+             - name: SSS_MONITOR_INITIAL_DELAY_SEC
+               value: "0"                 # Initial Delay [sec]
+             - name: SSS_NORECOVERY
+               value: "0"                 # Terminate Container
+                                          # (0: Terminate, 1: Do Nothing)
+     ```
+1. Create StatefulSet.
    ```sh
-   # kubectl create -f stateful-postgres-sss.yml
+   # kubectl apply -f sample-sts-mariadb-sss.yaml
    ```
-1. Check if the Pods are running.
+1. Check if all pods are running.
    ```sh
    # kubectl get pod
-   NAME                                     READY   STATUS    RESTARTS   AGE
-   postgres-sss-0                           2/2     Running   0          6m19s
-   postgres-sss-1                           2/2     Running   0          5m57s
+   NAME            READY   STATUS    RESTARTS   AGE
+   postgres-sss-0   2/2     Running   0          31s
+   postgres-sss-1   2/2     Running   0          27s
+   postgres-sss-2   2/2     Running   0          23s
    ```
-1. Check if SingleServerSafe is running.
+1. Check if SingleServerSafe is online on each container.
    ```sh
-   # kubectl exec postgres-sss-0 -c sss clpstat
+   # for i in {0..2}; do kubectl exec -it postgres-sss-$i -c sss clpstat; done
     ========================  CLUSTER STATUS  ===========================
-     Cluster : sss
+     Cluster : postgres-sss-0
      <server>
       *postgres-sss-0 ..: Online
          lanhb1         : Normal           LAN Heartbeat
      <group>
-       failover ........: Online
+       container-recove : Online
          current        : postgres-sss-0
+         exec           : Online
+     <monitor>
+       psqlw            : Normal
+    =====================================================================
+    ========================  CLUSTER STATUS  ===========================
+     Cluster : postgres-sss-1
+     <server>
+      *postgres-sss-1 ..: Online
+         lanhb1         : Normal           LAN Heartbeat
+     <group>
+       container-recove : Online
+         current        : postgres-sss-1
+         exec           : Online
+     <monitor>
+       psqlw            : Normal
+    =====================================================================
+    ========================  CLUSTER STATUS  ===========================
+     Cluster : postgres-sss-2
+     <server>
+      *postgres-sss-2 ..: Online
+         lanhb1         : Normal           LAN Heartbeat
+     <group>
+       container-recove : Online
+         current        : postgres-sss-2
          exec           : Online
      <monitor>
        psqlw            : Normal
@@ -334,129 +364,56 @@
 ### Verify Functionality
 1. Run bash on PostgreSQL contaier.
    ```sh
-   # kubectl exec -it postgres-sss-0 -c postgres bash
+   # kubectl exec -it postgres-sss-0 -c mariadb bash
    ```
 1. Send SIGSTOP signal to postgres process.
    ```sh
    # kill -s SIGSTOP `pgrep postgres`
    ```
-1. SingleServerSafe detects timeout error and terminates postgres process. Then, PostgreSQL container stops and kubernetes restart the PostgreSQL container.
+1. SingleServerSafe detects timeout error and terminates postgres process. Then, PostgreSQL container terminates and kubernetes restart the PostgreSQL container.
+   - SingleServerSafe terminates postgres process and STATUS changes to Error.
+     ```sh
+     # kubectl get pod
+     NAME            READY   STATUS    RESTARTS   AGE
+     postgres-sss-0   1/2     Error     0          5m43s
+     postgres-sss-1   2/2     Running   0          5m39s
+     postgres-sss-2   2/2     Running   0          5m35s
+     ```
+   - kubernetes restarts PostgreSQL container and STATUS changes to Running.
+     ```sh
+     # kubectl get pod
+     NAME            READY   STATUS    RESTARTS   AGE
+     postgres-sss-0   2/2     Running   1          5m46s
+     postgres-sss-1   2/2     Running   0          5m42s
+     postgres-sss-2   2/2     Running   0          5m38s
+     ```
+
+### 監視パラメータの変更
+### Change Variables for Monitoring
+1. Modify variables in the manifest file (sample-sts-postgres-sss.yaml).
+1. Apply the modified manifest file.
+   ```sh
+   # kubectl apply -f sample-sts-postgres-sss.yaml
+   ```
+1. The pods are recreated one by one with rolling update.
    ```sh
    # kubectl get pod
-   NAME             READY   STATUS    RESTARTS   AGE
-   postgres-sss-0   2/2     Running   1          5m14s
-   postgres-sss-1   2/2     Running   0          5m7s
+   NAME            READY   STATUS        RESTARTS   AGE
+   postgres-sss-0   2/2     Running       1          9m48s
+   postgres-sss-1   2/2     Running       0          9m44s
+   postgres-sss-2   0/2     Terminating   0          9m40s
    ```
-
-## Logging
-- This is an example to set up Fluentd container send SingleServerSafe log to the other Fluentd.
-  ```
-   +--------------------------------+
-   | Pod                            |
-   | +----------------------------+ | Send logs to the other Fluentd
-   | | Fluentd container        -------> 
-   | +------------|---------------+ |
-   |              | Tail logs       |
-   |  +-----------V--------------+  |
-   |  | emptyDir                 |  |
-   |  +-----------A--------------+  |
-   |              | Output logs     |
-   | +------------|---------------+ |
-   | | SingleServerSafe container | |
-   | +--|-------------------------+ |
-   |    | Monitoring                |
-   | +--V-------------------------+ |
-   | | Application (e.g. Database)| |
-   | +--------------------+-------+ |
-   +----------------------|---------+
-                          | Mount persistent volume
-   +----------------------|---------+
-   | Persistent Volume    |         |
-   | +--------------------+-------+ |
-   | | Files (e.g. Database files)| |
-   | +----------------------------+ |
-   +--------------------------------+
-  ```
-  
-### Install Fluentd
-1. Install Fluentd to some Linux machine. For detail, please refer to https://docs.fluentd.org/installation.
-1. Modify /etc/td-agent/td-agent.conf as below.
-   ```
-   <source>
-     @type forward
-     port 24224
-     bind 0.0.0.0
-   </source>
-   <match **>
-     @type file
-     format single_value
-     append true
-     path /var/log/td-agent/containers.log
-     time_slice_format %Y-%m-%d
-     <buffer>
-       path /var/log/td-agent/buffer
-       flush_mode interval
-       flush_interval 10s
-     </buffer>
-   </match>
-   ```
-1. Restart Fluentd.
    ```sh
-   # systemctl enable td-agent
-   # systemctl daemon-reload
-   # systemctl restart td-agent
+   # kubectl get pod
+   NAME            READY   STATUS              RESTARTS   AGE
+   postgres-sss-0   2/2     Running             1          9m49s
+   postgres-sss-1   2/2     Running             0          9m45s
+   postgres-sss-2   0/2     ContainerCreating   0          1s
    ```
-
-### Deploy Fluentd Container
-1. Download [ConfigMap file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/fluentd/fluent.conf) and set IP address of Fluentd.
-   ```
-   <match **>
-     @type forward
-     <server>
-       host <IP address>
-       port 24224
-     </server>
-   </match>
-   <source>
-     @type tail
-     format none
-     path /mydata/alertlog.alt
-     tag clp.alt
-   </source>   
-   ```
-1. Create ConfigMap for Fluentd.
    ```sh
-   # kubectl create cm fluentd --from-file=fluent.conf
-   ```
-1. Download yaml file and apply it.
-   - [MariaDB + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss-fluentd.yaml)
-   - [PostgreSQL + SingleServerSafe + Fluentd](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/stateful-postgres-sss-fluentd.yaml)
-   ```sh
-   Example:
-   # kubectl apply -f stateful-mariadb-sss-fluentd.yaml
-   ```
-1. If you install metrics-server, you can check memory usage of containers.
-   ```sh
-   # kubectl top pod --containers
-   POD              NAME       CPU(cores)   MEMORY(bytes)
-   mariadb-sss-0    fluentd    3m           49Mi
-   mariadb-sss-0    sss        8m           44Mi
-   mariadb-sss-0    mariadb    2m           88Mi
-   mariadb-sss-1    mariadb    2m           76Mi
-   mariadb-sss-1    sss        7m           47Mi
-   mariadb-sss-1    fluentd    3m           43Mi
-   postgres-sss-0   postgres   4m           16Mi
-   postgres-sss-0   fluentd    4m           46Mi
-   postgres-sss-0   sss        9m           44Mi
-   postgres-sss-1   sss        8m           51Mi
-   postgres-sss-1   postgres   5m           16Mi
-   postgres-sss-1   fluentd    3m           44Mi   
-   ```
-
-### Verify Functionality
-1. If you check /var/log/td-agent/containers-YYYY-MM-DD.log, you can see the alter logs of SingleServerSafe.
-   ```
-    :
-   9         2019/12/31 13:41:59.981 (snip) postgres-sss-1 (snip) Activating group failover has completed.
-   10        2019/12/31 13:41:59.997 (snip) postgres-sss-1 (snip) Monitoring psqlw has started.   
+   # kubectl get pod
+   NAME            READY   STATUS        RESTARTS   AGE
+   postgres-sss-0   2/2     Running       1          10m
+   postgres-sss-1   0/2     Terminating   0          10m
+   postgres-sss-2   2/2     Running       0          49s
    ```

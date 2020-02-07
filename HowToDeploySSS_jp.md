@@ -32,13 +32,23 @@
   ```
 
 ## 動作確認済みの構成
-- kubernetes v1.15.0
-  - Master Node (1 ノード) / CentOS 7.6.1810
-  - Worker Node (3 ノード) / CentOS 7.6.1810
-- Docker 18.09.7
-- アプリケーションコンテナ
+### Kubernetes
+- CentOS
+  - Master Node (1 node)
+  - Worker Node (3 nodes)
+  - CentOS 7.7.1908
+  - kubernetes v1.17.2
+  - Docker 1.13.1
+- Ubuntu
+  - Master Node (1 node)
+  - Worker Node (3 nodes)
+  - Ubuntu 18.04.4 LTS
+  - kubernetes v1.17.2
+  - Docker 19.03.5
+### アプリケーション
   - MariaDB 10.1, 10.4
   - PostgreSQL 11.3, 11.6
+  - EXPRESSCLUSTER X SingleServerSafe 4.1 for Linux
 
 ## MariaDBを監視する
 ### 前提
