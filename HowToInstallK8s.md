@@ -113,7 +113,7 @@
    ```
    - --apiserver-advertise-address: IP address of master node
    - --pod-network-cidr: It depends on Container Networking Interface (e.g. Calico, Flannnel, Canal and so on). In this case, we use Calico.
-     - If your node network is 192.168.x.0/24, please change the default Calico network 192.168.0.0/16 to the other network (e.g. 10.0.0.16).
+     - If your node network is 192.168.x.0/24, please change the default Calico network 192.168.0.0/16 to the other network (e.g. 10.0.0.0/16).
    - --token-ttl: **0** means **never expire**.
 1. After initialization, take a note the following command. It is required to add a worker node to the cluster.
    ```bash
