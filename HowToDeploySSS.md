@@ -32,11 +32,18 @@
   ```
 
 ## Evaluation Configuration
-- Master Node (1 node)
-- Worker Node (3 nodes)
-- CentOS 7.7.1908
-- kubernetes v1.16.3
-- Docker 1.13.1
+- CentOS
+  - Master Node (1 node)
+  - Worker Node (3 nodes)
+  - CentOS 7.7.1908
+  - kubernetes v1.17.2
+  - Docker 1.13.1
+- Ubuntu
+  - Master Node (1 node)
+  - Worker Node (3 nodes)
+  - Ubuntu 18.04.4 LTS
+  - kubernetes v1.17.2
+  - Docker 19.03.5
 
 ## Monitoring MariaDB
 ### Prerequisite
@@ -226,6 +233,13 @@
    ```
 
 ## Monitoring PostgreSQL
+### Prerequisite
+- Create a persistent volume for MariaDB in advance.
+- The following expamle uses StatefulSet.
+
+### Create Secret and ConfigMap
+1. 
+
 1. Create a persistent volume for PostgreSQL. The following expamle uses StatefulSet.
 1. Download [the config file for PostgreSQL](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/postgres-configmap.yaml) and edit the following parameters.
    ```yml

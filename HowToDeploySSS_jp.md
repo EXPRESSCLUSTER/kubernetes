@@ -249,7 +249,7 @@
    NAME            TYPE     DATA   AGE
    postgres-auth   Opaque   1      64s
    ```
-1. [SingleServerSafe の設定ファイル (sss4postgres.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/beta/sss4postgres.conf)をダウンロードしてください。
+1. [SingleServerSafe の設定ファイル (sss4postgres.conf)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/config/postgres/sss4postgres.conf) をダウンロードしてください。
 1. ダウンロードした設定ファイルを指定し、SingleServerSave の設定情報を保持する ConfigMap (name: sss4postgres) を作成してください。
    ```sh
    # kubectl create configmap --save-config sss4postgres --from-file=sss4postgres.conf
@@ -262,7 +262,7 @@
    ```
 
 ### PostgreSQL および SingleServerSafe のデプロイ
-1. [StatefulSet のマニフェストファイル (sample-sts-postgres-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/beta/sample-sts-postgres-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
+1. [StatefulSet のマニフェストファイル (sample-sts-postgres-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/sample-sts-postgres-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
    - PostgreSQL コンテナの環境変数
      ```yaml
              env:
