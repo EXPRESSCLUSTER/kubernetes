@@ -38,7 +38,7 @@
   - Worker Node (3 nodes)
   - CentOS 7.7.1908
   - kubernetes v1.17.2
-  - Docker 1.13.1
+  - Docker 18.09.7
 - Ubuntu
   - Master Node (1 node)
   - Worker Node (3 nodes)
