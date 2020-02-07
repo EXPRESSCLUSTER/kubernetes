@@ -388,7 +388,6 @@
      postgres-sss-2   2/2     Running   0          5m38s
      ```
 
-### 監視パラメータの変更
 ### Change Variables for Monitoring
 1. Modify variables in the manifest file (sample-sts-postgres-sss.yaml).
 1. Apply the modified manifest file.
