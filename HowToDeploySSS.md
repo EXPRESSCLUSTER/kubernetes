@@ -81,6 +81,12 @@
 
 ### Deploy MariaDB and SingleServerSafe
 1. Download [manifest file (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss.yaml) and modify the following parameters. Set the same value for **Database Name** and **User Name for Monitoring**.
+   - Number of Replicas
+     ```yaml
+     spec:
+       serviceName: mariadb
+       replicas: 3            # Number of replicas
+     ```
    - Variables of MariaDB
      ```yaml
              env:
@@ -267,6 +273,12 @@
 
 ### Deploy PostgreSQL and SingleServerSafe
 1. Download [manifest file (sample-sts-postgres-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/sample-sts-postgres-sss.yaml) and modify the following parameters.
+   - Number of Replicas
+     ```yaml
+     spec:
+       serviceName: postgres
+       replicas: 3            # Number of replicas
+     ```
    - Variables of PostgreSQL
      ```yaml
              env:

@@ -83,6 +83,12 @@
 
 ### MariaDB および SingleServerSafe のデプロイ
 1. [StatefulSet のマニフェストファイル (sample-sts-mariadb-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/mariadb/sample-sts-mariadb-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
+   - Pod のレプリカ数
+     ```yaml
+     spec:
+       serviceName: mariadb
+       replicas: 3            # レプリカの数
+     ```
    - MariaDB コンテナの環境変数
      ```yaml
              env:
@@ -273,6 +279,12 @@
 
 ### PostgreSQL および SingleServerSafe のデプロイ
 1. [StatefulSet のマニフェストファイル (sample-sts-postgres-sss.yaml)](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/postgres/sample-sts-postgres-sss.yaml) をダウンロードし、以下のパラメータを必要に応じて編集してください。MariaDB コンテナと SingleServerSafe コンテナの**監視データベース名**、**監視ユーザ名**は同一の値にしてください。
+   - Pod のレプリカ数
+     ```yaml
+     spec:
+       serviceName: postgres
+       replicas: 3            # レプリカ数
+     ```
    - PostgreSQL コンテナの環境変数
      ```yaml
              env:
