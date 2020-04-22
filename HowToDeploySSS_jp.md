@@ -46,7 +46,7 @@
   - Ubuntu 18.04.4 LTS
   - kubernetes v1.17.2
   - Docker 19.03.5
-####マネージド Kubernetes
+#### マネージド Kubernetes
 - Amazon Elastic Kubernetes Service (EKS)
   - コントロールプレーン 1.15.10 eks.2
   - データプレーン - worker node AMI 1.15.10-20200228
