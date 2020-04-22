@@ -32,7 +32,8 @@
   ```
 
 ## 動作確認済みの構成
-### Kubernetes
+### Kubernetes クラスタ
+#### オンプレミス Kubernetes
 - CentOS
   - Master Node (1 node)
   - Worker Node (3 nodes)
@@ -45,10 +46,14 @@
   - Ubuntu 18.04.4 LTS
   - kubernetes v1.17.2
   - Docker 19.03.5
+####マネージド Kubernetes
+- Amazon Elastic Kubernetes Service (EKS)
+  - コントロールプレーン 1.15.10 eks.2
+  - データプレーン - worker node AMI 1.15.10-20200228
 ### アプリケーション
   - MariaDB 10.1, 10.4
   - PostgreSQL 11.3, 11.6
-  - EXPRESSCLUSTER X SingleServerSafe 4.1 for Linux
+  - EXPRESSCLUSTER X SingleServerSafe 4.2 for Linux
 
 ## MariaDBを監視する
 ### 前提
@@ -385,7 +390,7 @@
 ### 動作確認
 1. PostgreSQL コンテナで bash を実行してください。
    ```sh
-   # kubectl exec -it postgres-sss-0 -c mariadb bash
+   # kubectl exec -it postgres-sss-0 -c postgres bash
    ```
 1. postgres プロセスに SIGSTOP シグナルを送信してください。
    ```sh

@@ -25,6 +25,7 @@ spec:
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
+          subPath: postgres
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
@@ -36,7 +37,7 @@ spec:
         - name: POSTGRES_USER
           value: postgres
       - name: sss
-        image: expresscluster/sss4postgres:4.1.2-1.1
+        image: expresscluster/sss4postgres:4.2.0-1.1
         resources:
           requests:
             cpu: 20m
@@ -44,10 +45,10 @@ spec:
           limits:
             cpu: 30m
             memory: 100Mi
-        command: ["/entrypoint.sh"]
+        command: ["entrypoint.sh"]
         livenessProbe:
           exec:
-            command: ["/opt/nec/clusterpro/bin/clphealthchk"]
+            command: ["clphealthchk"]
           initialDelaySeconds: 60
           periodSeconds: 5
           timeoutSeconds: 1
@@ -56,6 +57,7 @@ spec:
         volumeMounts:
         - name: sss4postgres-config
           mountPath: /config
+          readOnly: true
         env:
         - name: SSS_MAIN_CONTAINER_PROCNAME
           value: postgres
@@ -80,6 +82,23 @@ spec:
           value: "0"
         - name: SSS_NORECOVERY
           value: "0"
+        - name: SSS_USE_STATSD
+          value: "false"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: K8S_NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: K8S_PODNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        #envFrom:
+        #- configMapRef:
+        #    name: statsd-config
       volumes:
       - name: sss4postgres-config
         configMap:

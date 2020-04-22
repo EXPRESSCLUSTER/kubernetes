@@ -32,6 +32,7 @@
 
 ## Evaluation Configuration
 ### Kubernetes Cluster
+#### On-prem Kubernetes
 - CentOS
   - Master Node (1 node)
   - Worker Node (3 nodes)
@@ -44,10 +45,14 @@
   - Ubuntu 18.04.4 LTS
   - kubernetes v1.17.2
   - Docker 19.03.5
+#### Managed Kubernetes
+- Amazon Elastic Kubernetes Service (EKS)
+  - Control plane 1.15.10 eks.2
+  - Data plane - worker node AMI 1.15.10-20200228
 ### Application
   - MariaDB 10.1, 10.4
   - PostgreSQL 11.3, 11.6
-  - EXPRESSCLUSTER X SingleServerSafe 4.1 for Linux
+  - EXPRESSCLUSTER X SingleServerSafe 4.2 for Linux
 
 ## Monitoring MariaDB
 ### Prerequisite
@@ -376,7 +381,7 @@
 ### Verify Functionality
 1. Run bash on PostgreSQL contaier.
    ```sh
-   # kubectl exec -it postgres-sss-0 -c mariadb bash
+   # kubectl exec -it postgres-sss-0 -c postgres bash
    ```
 1. Send SIGSTOP signal to postgres process.
    ```sh
