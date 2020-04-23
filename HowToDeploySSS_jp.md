@@ -6,6 +6,7 @@
 - [動作確認済みの構成](#動作確認済みの構成)
 - [MariaDBを監視する](#MariaDBを監視する)
 - [PostgreSQLを監視する](#PostgreSQLを監視する)
+- [StatsDを試用して監視メトリクスを送信する](#StatsDを試用して監視メトリクスを送信する)
 
 ## 概要
 - SingleServerSafe コンテナはアプリケーションコンテナにアクセスし、応答を監視する。
@@ -442,3 +443,7 @@
    postgres-sss-1   0/2     Terminating   0          10m
    postgres-sss-2   2/2     Running       0          49s
    ```
+
+## StatsDを試用して監視メトリクスを送信する
+
+[SingleServerSafe コンテナから StatsD でメトリクスを送信する方法](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToUseStatsDClient_jp.md)を参照し、アプリケーションコンテナの監視応答時間をモニタリングツールへ送信することができます。
