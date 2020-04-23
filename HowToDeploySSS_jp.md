@@ -444,6 +444,7 @@
    postgres-sss-2   2/2     Running       0          49s
    ```
 
-## StatsDを試用して監視メトリクスを送信する
+## StatsDを使用して監視メトリクスを送信する
 
-[SingleServerSafe コンテナから StatsD でメトリクスを送信する方法](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToUseStatsDClient_jp.md)を参照し、アプリケーションコンテナの監視応答時間をモニタリングツールへ送信することができます。
+StatsD を使用して、アプリケーションコンテナの監視応答時間をモニタリングツールへ送信します。
+[SingleServerSafe コンテナから StatsD でメトリクスを送信する方法](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToUseStatsDClient_jp.md)を参照してください。
