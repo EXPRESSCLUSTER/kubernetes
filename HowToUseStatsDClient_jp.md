@@ -2,12 +2,14 @@
 SingleServerSafe コンテナに StatsD クライアント機能を設定し、StatsD サーバへメトリクスを送信する方法を紹介します。
 
 ## Index
+
 - [概要](#概要)
   - [サポートするメトリクス](#サポートするメトリクス)
 - [動作確認済みの構成](#動作確認済みの構成)
 - [StatsDクライアントを設定する](#StatsDクライアントを設定する)
 
 ## 概要
+
 - SingleServerSafe コンテナは StatsD クライアントとしてアプリケーションコンテナの監視間隔と同じ間隔で、直近の監視応答時間(ミリ秒)を StatsD サーバへ送信する。
 - StatsD サーバは自身の設定に基づいて、クライアントから受け取ったメトリクスデータを収集、集合し、バックエンドのモニタリングツールへ送信する。
   ```
@@ -34,7 +36,7 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
 ### サポートするメトリクス
 
 |項目|値|説明|
-|----|--|----|
+|:---|:-|:---|
 |メトリクス名|clp_monitor_response_time|監視の応答時間|
 |メトリクスタイプ|timers|処理の開始から終了までの経過時間(ミリ秒)を扱うメトリクス|
 |タグ|Namespace|メトリクス送信元 Pod が所属する名前空間|
@@ -43,9 +45,11 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
 ||MonitorName|SingleServerSafe のモニタ名|
 
 ## 動作確認済みの構成
+
 ### Amazon Web Service
-| | |
-|-|-|
+
+|コンポーネント|ソフトウェア/サービス|
+|:-------------|:--------------------|
 |Kubernetes クラスタ|Amazon Elastic Kubernetes Service (EKS)|
 |StatsD サーバ|Amazon CloudWatch Agent コンテナ(StatsD 有効化)|
 ||デプロイ方式: Deployment、DaemonSet、サイドカー|
@@ -72,7 +76,7 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
        STATSD_RATE: "1"
      ```
      |パラメータ|説明|
-     |----------|----|
+     |:---------|:---|
      |STATSD_SERVER|StatsD サーバのエンドポイント|
      ||StatsD サーバのコンテナを Deployment 等でデプロイし、Service として公開している場合は Service の名前を指定します。(例: サービス名を `statsd`、名前空間を `hoge` とした場合、`statsd.hoge` を指定します。Service がメトリクス送信元 Pod と同一の名前空間である場合、名前空間は省略できます。)|
      ||StatsD サーバのコンテナを DaemontSet としてデプロイし、ワーカーノードのIPアドレス/ポート番号で公開している場合は、空文字 `""` を指定します。
