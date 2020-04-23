@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: statsd-config
+data:
+  STATSD_SERVER: ""
+  STATSD_PORT: "8125"
+  STATSD_METRICTYPE: "ms"
+  STATSD_RATE: "1"
