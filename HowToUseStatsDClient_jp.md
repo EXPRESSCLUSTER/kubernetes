@@ -78,9 +78,9 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
      |パラメータ|説明|
      |:---------|:---|
      |STATSD_SERVER|StatsD サーバのエンドポイント|
-     ||StatsD サーバのコンテナを Deployment 等でデプロイし、Service として公開している場合は Service の名前を指定します。(例: サービス名を `statsd`、名前空間を `hoge` とした場合、`statsd.hoge` を指定します。Service がメトリクス送信元 Pod と同一の名前空間である場合、名前空間は省略できます。)|
+     ||StatsD サーバのコンテナを Deployment 等でデプロイし、Service として公開している場合は Service の名前を指定します。(例: サービス名を `statsd`、名前空間を `hoge` とした場合、`"statsd.hoge"` を指定します。Service がメトリクス送信元 Pod と同一の名前空間である場合、名前空間は省略できます。)|
      ||StatsD サーバのコンテナを DaemontSet としてデプロイし、ワーカーノードのIPアドレス/ポート番号で公開している場合は、空文字列 `""` を指定します。
-     ||StatsD サーバのコンテナを メトリクス送信元 Pod のサイドカーとしてデプロイしている場合は、`localhost` を指定します。
+     ||StatsD サーバのコンテナを メトリクス送信元 Pod のサイドカーとしてデプロイしている場合は、`"localhost"` を指定します。
      |STATSD_PORT|StatsD サーバの待ち受けポート番号(UDP)|
      ||StatsD サーバ側の設定に合わせて変更してください。|
      |STATSD_METRICTYPE|StatsD サーバに送信するメトリクスのタイプ。変更しないでください。|
