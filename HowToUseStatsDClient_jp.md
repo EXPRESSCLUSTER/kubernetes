@@ -58,7 +58,7 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
 ## StatsDクライアントを設定する
 
 ### 前提
-- 利用するモニタリングツールに応じて、Kubernetes クラスタへ StatsD サーバコンテナをデプロイします。([AWS の場合のデプロイ手順](https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-StatsD.html))
+- 利用するモニタリングツールに応じて、Kubernetes クラスタへ StatsD サーバコンテナをデプロイします。([Amazon EKS / CloudWatch の場合のデプロイ手順](https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-StatsD.html))
 <!--
 英語URL:https://docs.aws.amazon.com/us_en/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-StatsD.html
 -->
@@ -147,3 +147,8 @@ SingleServerSafe コンテナに StatsD クライアント機能を設定し、S
    xxxxxxx-sss-2   2/2     Running   0          21s
    ```
 1. モニタリングツール(または、StatsD サーバ)でメトリクスを受信していることを確認します。
+   - 下記は4つの SingleServerSafe サイドカー Pod をデプロイし、Amazon CloudWatch でモニタリングした画面です。
+   - メトリクスとして送信するタグは CloudWatch のディメンションとして扱われています。
+   - 06:37 にアプリケーションコンテナの監視タイムアウト(疑似障害)を発生させています。CloudWatch の画面でグラフがスパイクしているのが分かります。
+
+   ![](image/cw-statsd-example.png)
