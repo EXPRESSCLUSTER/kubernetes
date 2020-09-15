@@ -8,3 +8,6 @@
 - Please refer to the following steps.
   - [English](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToDeploySSS.md)
   - [Japanese](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToDeploySSS_jp.md)
+
+## How to Deploy Grafana
+- Please refer to [How to Deploy Grafana](HowToDeployGrafana.md).
