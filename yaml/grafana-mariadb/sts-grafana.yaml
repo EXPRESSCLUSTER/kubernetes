@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-mariadb
+  labels:
+    app: grafana-mariadb
+spec:
+  serviceName: grafana-mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-mariadb
+  template:
+    metadata:
+      labels:
+        app: grafana-mariadb
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: mariadb
+        image: mariadb:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/mysql
+          subPath: mariadb
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-auth
+              key: root-password
+        - name: MYSQL_DATABASE
+          value: testdb
+        - name: MYSQL_USER
+          value: testuser
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-auth
+              key: user-password
+      - name: grafana
+        image: grafana/grafana
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-auth
+              key: grafana-password
+        volumeMounts:
+        - name: grafana-mysql
+          mountPath: /etc/grafana/provisioning/datasources
+# If you have some script, please add the script as below.
+#        - name: grafana-script
+#          mountPath: /usr/share/grafana/public/dashboards/sample.js
+#          subPath: sample.js
+      volumes:
+      - name: grafana-mysql
+        configMap:
+          name: grafana-mysql
+# If you have some script, please add the script as below.
+#      - name: grafana-script
+#        configMap:
+#          name: grafana-script
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 200Gi

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-mariadb
+spec:
+  type: NodePort
+  ports:
+    - name: grafana
+      protocol: TCP
+      port: 9300
+      targetPort: 3000
+      nodePort: 30333
+    - name: mariadb
+      protocol: TCP
+      port: 9301
+      targetPort: 3306
+      nodePort: 30334
+  selector:
+    app: grafana-mariadb
+
