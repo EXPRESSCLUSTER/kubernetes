@@ -55,15 +55,9 @@
    ```sh
    # kubectl create configmap --save-config grafana-mysql --from-file=mysql.yaml
    ```   
-1. If you have some additional script (e.g. sample.js) for Grafana, convert the script to ConfigMap.
-   ```sh
-   # kubectl create configmap --save-config grafana-script --from-file=sample.js
-   ```
-1. Download the yaml file and change some parameters.
-   ```yaml
-
-   ```
+1. Download [the yaml file](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/yaml/grafana-mariadb/sts-grafana.yaml) apply it.
 1. Apply the manifest file.
    ```sh
    # kubectl apply -f sample-sts-grafana.yaml
    ```
+
