@@ -159,7 +159,7 @@
    ```bash
    kubeadm join 192.168.1.151:6443 --token 8ohp86.cau1d11offeesc6q --discovery-token-ca-cert-hash sha256:eeb9e3cb74e3652c8a699ec4812131b771ae6eb788e4a4e0b6ec58193eb90241
    ```
-1. Run the following command on the master node to check if the all nodes are running.
+1. Run the following command on the control-plane node to check if the all nodes are running.
    ```bash
    # kubectl get node
    NAME         STATUS   ROLES    AGE     VERSION
