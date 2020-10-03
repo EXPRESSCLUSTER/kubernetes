@@ -53,9 +53,9 @@
     ```
 - Modify /etc/hosts file as below.
   ```bash
-  # 192.168.1.150 master
-  # 192.168.1.151 worker1
-  # 192.168.1.152 worker2
+  # 192.168.1.150 control-plane
+  # 192.168.1.151 node1
+  # 192.168.1.152 node2
   ```
 - Modify /etc/fstab to disalbe swap.
   ```bash
@@ -111,7 +111,7 @@
    ```bash
    # kubeadm init --apiserver-advertise-address=192.168.1.225 --pod-network-cidr=10.0.0.0/16 --token-ttl 0
    ```
-   - --apiserver-advertise-address: IP address of master node
+   - --apiserver-advertise-address: IP address of the control-plane node
    - --pod-network-cidr: It depends on Container Networking Interface (e.g. Calico, Flannnel, Canal and so on). In this case, we use Calico.
      - If your node network is 192.168.x.0/24, please change the default Calico network 192.168.0.0/16 to the other network (e.g. 10.0.0.0/16).
    - --token-ttl: **0** means **never expire**.
