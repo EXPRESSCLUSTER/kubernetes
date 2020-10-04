@@ -4,28 +4,28 @@
 - [Prerequisite](#Prerequisite)
 - [Install Docker](#Install-Docker)
 - [Install kubernetes on CentOS](#Install-kubernetes-on-CentOS)
-- [Setup Master Node](#Setup-Master-Node)
+- [Setup Control-plane](#Setup-Control-plane)
 - [Add Worker Node to the Cluster](#Add-Worker-Node-to-the-Cluster)
 - [Deploy metrics-server](#deploy-metrics-server)
 
 ## Evaluation Configuration
 ```
     +--------------------------+
- +--| Master Node (node0)      |
+ +--| Control-plane (node0)    |
  |  | - CentOS 7.6.1810        |
  |  | - kubernetes v1.15.0     |
  |  | - Docker 1.13.1-96       |
  |  +--------------------------+
  |
  |  +--------------------------+
- +--| Worker Node #1 (node1)   |
+ +--| Node #1 (node1)          |
  |  | - CentOS 7.6.1810        |
  |  | - kubernetes v1.15.0     |
  |  | - Docker 1.13.1-96       |
  |  +--------------------------+
  |
  |  +--------------------------+
- +--| Worker Node #2 (node2)   |
+ +--| Node #2 (node2)          |
     | - CentOS 7.6.1810        |
     | - kubernetes v1.15.0     |
     | - Docker 1.13.1-96       |
@@ -106,7 +106,7 @@
     # yum install -y kubelet kubeadm kubectl
     ```
 
-## Setup Master Node
+## Setup Control-plane
 1. Initialize a cluster.
    ```bash
    # kubeadm init --apiserver-advertise-address=192.168.1.225 --pod-network-cidr=10.0.0.0/16 --token-ttl 0
