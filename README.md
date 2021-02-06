@@ -2,7 +2,11 @@
 - The purpose of this project to open knowledge for kubernetes and EXPRESSCLUSTER.
 
 ## How to Install kubernetes
-- Please refer to [How to Install kubernetes](https://github.com/EXPRESSCLUSTER/kubernetes/blob/master/HowToInstallK8s.md).
+- Please refer to the following documentation.
+  - [How to Install kubernetes with containerd](HowToInstallK8s-containerd.md)
+    - Create a kubernetes cluster with containerd on Ubuntu.
+  - [How to Install kubernetes](HowToInstallK8s.md)
+    - Create a kubernetes cluster with Docker on CentOS.
 
 ## How to Deploy EXPRESSCLUSTER X SingleServerSafe
 - Please refer to the following steps.
