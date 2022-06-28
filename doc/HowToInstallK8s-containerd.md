@@ -2,8 +2,8 @@
 
 ## Index
 - [Evaluation Environment](#evaluation-environment)
-- [Installing kubernetes on the Control-plane](#installing-kubernetes-on-the-control-plane)
-- [Installing kubectl on the Client](#installing-kubectl-on-the-client)
+- [Install kubernetes on the Control-plane](#install-kubernetes-on-the-control-plane)
+- [Install kubectl on the Client](#install-kubectl-on-the-client)
 
 ## Evaluation Environment
 ```
@@ -22,7 +22,7 @@
     +-------------------------------+
 ```
 
-## Installing kubernetes on the Control-plane
+## Install kubernetes on the Control-plane
 1. Install containerd.
    - https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd
 1. If you have the proxy server, do the following steps.
@@ -62,7 +62,7 @@
    ubuntu-205   Ready    control-plane,master   24h   v1.20.2   
    ```
 
-## Installing kubectl on the Client
+## Install kubectl on the Client
 1. Copy the config file from the control-plane and save it on $HOME/.kube directory.
 1. Install kubectl command.
    - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
@@ -75,4 +75,10 @@
 1. (Optional) Install Docker.
    ```sh
    $ sudo apt install docker.io
+   ```
+
+## Import Container Image
+1. If you want to import the local container image, you need to use ctr command.
+   ```sh
+   $ sudo ctr -n=k8s.io images import <tar file name of container image>
    ```
