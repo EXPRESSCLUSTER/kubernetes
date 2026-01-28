@@ -123,7 +123,7 @@
    ```
 1. Check if SingleServerSafe is online on each container.
    ```
-   kubectl exec -it mariadb-sss-0 -c sss clpstat
+   kubectl exec -it mariadb-sss-0 -c sss -- clpstat
     ========================  CLUSTER STATUS  ===========================
      Cluster : mariadb-sss-0
      <server>

@@ -163,7 +163,7 @@
    - Number of Replicas
      ```yaml
      spec:
-       serviceName: mariadb
+       serviceName: postgres
        replicas: 1            # Number of replicas
      ```
    - Variables of PostgreSQL
