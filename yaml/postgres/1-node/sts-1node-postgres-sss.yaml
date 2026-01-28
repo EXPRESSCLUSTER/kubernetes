@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-sss
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      shareProcessNamespace: true
+      restartPolicy: Always
+      containers:
+      - name: postgres
+        image: postgres:18.1
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/18/docker
+          subPath: postgres
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-auth
+              key: root-password
+        - name: POSTGRES_DB
+          value: watch
+        - name: POSTGRES_USER
+          value: postgres
+      - name: sss
+        image: expresscluster/sss4postgres:5.3.1
+#        resources:
+#          requests:
+#            cpu: 20m
+#            memory: 50Mi
+#          limits:
+#            cpu: 30m
+#            memory: 100Mi
+        command: ["/entrypoint.sh"]
+#        livenessProbe:
+#          exec:
+#            command: ["clphealthchk"]
+#          initialDelaySeconds: 60
+#          periodSeconds: 5
+#          timeoutSeconds: 1
+#          failureThreshold: 2
+#          successThreshold: 1
+        volumeMounts:
+        - name: sss4postgres-config
+          mountPath: /config
+          readOnly: true
+        env:
+        - name: SSS_MAIN_CONTAINER_PROCNAME
+          value: postgres
+        - name: SSS_MONITOR_DB_NAME
+          value: watch
+        - name: SSS_MONITOR_DB_USER
+          value: postgres
+        - name: SSS_MONITOR_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: postgres-auth
+              key: root-password
+        - name: SSS_MONITOR_DB_PORT
+          value: "5432"
+        - name: SSS_MONITOR_PERIOD_SEC
+          value: "10"
+        - name: SSS_MONITOR_TIMEOUT_SEC
+          value: "10"
+        - name: SSS_MONITOR_RETRY_CNT
+          value: "2"
+        - name: SSS_MONITOR_INITIAL_DELAY_SEC
+          value: "0"
+        - name: SSS_NORECOVERY
+          value: "0"
+        - name: SSS_USE_STATSD
+          value: "false"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: K8S_NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: K8S_PODNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        #envFrom:
+        #- configMapRef:
+        #    name: statsd-config
+      volumes:
+      - name: sss4postgres-config
+        configMap:
+          name: sss4postgres
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Gi

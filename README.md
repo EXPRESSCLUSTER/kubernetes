@@ -23,6 +23,7 @@
 - Please refer to the following steps.
   - English
     - [MariaDB](doc/HowToDeployMariaDBwithSSS.md)
+    - [PostgreSQL](doc/HowToDeployPostgreSQLwithSSS.md)
   - [Japanese](doc/HowToDeploySSS_jp.md)
 
 ## How to Deploy Grafana
