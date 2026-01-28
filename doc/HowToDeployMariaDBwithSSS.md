@@ -61,11 +61,11 @@
 - If you use K3s, you don't need to create the Persistent Volume.
 1. Create a directory to save MariaDB database files.
    ```sh
-   sudo mkdir -p /mnt/hostpath/mariadb
+   sudo mkdir -p /mnt/hostpath/4mariadb/mariadb
    ```
 1. Change the directory owner.
    ```sh
-   sudo chown 999:999 /mnt/hostpath/mariadb
+   sudo chown 999:999 /mnt/hostpath/4mariadb/mariadb
    ```
 1. Move to the following directory.
    ```sh
